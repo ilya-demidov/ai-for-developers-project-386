@@ -18,6 +18,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/EventType'
+              example:
+                - id: et-1
+                  name: Consultation
+                  durationMinutes: 30
   /api/admin/bookings:
     get:
       operationId: AdminRoutes_listBookings
@@ -46,6 +50,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Booking'
+              example:
+                - id: bk-1
+                  eventTypeId: et-1
+                  eventTypeName: Consultation
+                  startUtc: '2025-06-01T09:00:00Z'
+                  endUtc: '2025-06-01T09:30:00Z'
+                  guestName: Alice Johnson
+                  guestEmail: alice@example.com
+                  createdAtUtc: '2025-05-20T08:00:00Z'
   /api/admin/event-types:
     post:
       operationId: AdminRoutes_createEventType
@@ -58,6 +71,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventType'
+              example:
+                id: et-1
+                name: Consultation
+                durationMinutes: 30
         '400':
           description: The server could not understand the request due to invalid syntax.
           content:
@@ -70,6 +87,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/EventTypeCreate'
+            example:
+              name: Consultation
+              durationMinutes: 30
   /api/admin/event-types/{id}:
     get:
       operationId: AdminRoutes_getEventType
@@ -87,6 +107,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventType'
+              example:
+                id: et-1
+                name: Consultation
+                durationMinutes: 30
         '404':
           description: The server cannot find the requested resource.
           content:
@@ -109,6 +133,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventType'
+              example:
+                id: et-1
+                name: Consultation
+                durationMinutes: 60
         '400':
           description: The server could not understand the request due to invalid syntax.
           content:
@@ -127,6 +155,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/EventTypeUpdate'
+            example:
+              name: Consultation
+              durationMinutes: 60
     delete:
       operationId: AdminRoutes_deleteEventType
       description: Delete an event type
@@ -157,6 +188,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Booking'
+              example:
+                id: bk-1
+                eventTypeId: et-1
+                eventTypeName: Consultation
+                startUtc: '2025-06-01T09:00:00Z'
+                endUtc: '2025-06-01T09:30:00Z'
+                guestName: Alice Johnson
+                guestEmail: alice@example.com
+                createdAtUtc: '2025-05-20T08:00:00Z'
         '400':
           description: The server could not understand the request due to invalid syntax.
           content:
@@ -181,6 +221,11 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/BookingCreate'
+            example:
+              eventTypeId: et-1
+              startUtc: '2025-06-01T09:00:00Z'
+              guestName: Alice Johnson
+              guestEmail: alice@example.com
   /api/event-types:
     get:
       operationId: PublicRoutes_listEventTypes
@@ -195,6 +240,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/EventType'
+              example:
+                - id: et-1
+                  name: Consultation
+                  durationMinutes: 30
   /api/event-types/{id}:
     get:
       operationId: PublicRoutes_getEventType
@@ -251,6 +300,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Slot'
+              example:
+                - startUtc: '2025-06-01T09:00:00Z'
+                  endUtc: '2025-06-01T09:30:00Z'
+                  eventTypeId: et-1
         '400':
           description: The server could not understand the request due to invalid syntax.
           content:
@@ -309,6 +362,15 @@ components:
           format: date-time
           description: Creation timestamp in UTC
           readOnly: true
+      example:
+        id: bk-1
+        eventTypeId: et-1
+        eventTypeName: Consultation
+        startUtc: '2025-06-01T09:00:00Z'
+        endUtc: '2025-06-01T09:30:00Z'
+        guestName: Alice Johnson
+        guestEmail: alice@example.com
+        createdAtUtc: '2025-05-20T08:00:00Z'
     BookingCreate:
       type: object
       required:
@@ -355,6 +417,10 @@ components:
           format: int32
           minimum: 5
           maximum: 480
+      example:
+        id: et-1
+        name: Consultation
+        durationMinutes: 30
     EventTypeCreate:
       type: object
       required:
@@ -442,6 +508,10 @@ components:
           description: End of the slot in UTC, calculated as startUtc + EventType.durationMinutes
         eventTypeId:
           type: string
+      example:
+        startUtc: '2025-06-01T09:00:00Z'
+        endUtc: '2025-06-01T09:30:00Z'
+        eventTypeId: et-1
 servers:
   - url: http://localhost:8080
     description: Local development server

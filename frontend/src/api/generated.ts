@@ -146,6 +146,18 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * @example {
+         *       "id": "bk-1",
+         *       "eventTypeId": "et-1",
+         *       "eventTypeName": "Consultation",
+         *       "startUtc": "2025-06-01T09:00:00Z",
+         *       "endUtc": "2025-06-01T09:30:00Z",
+         *       "guestName": "Alice Johnson",
+         *       "guestEmail": "alice@example.com",
+         *       "createdAtUtc": "2025-05-20T08:00:00Z"
+         *     }
+         */
         Booking: {
             readonly id: string;
             eventTypeId: string;
@@ -182,6 +194,13 @@ export interface components {
             guestEmail: string;
             notes?: string;
         };
+        /**
+         * @example {
+         *       "id": "et-1",
+         *       "name": "Consultation",
+         *       "durationMinutes": 30
+         *     }
+         */
         EventType: {
             readonly id: string;
             name: string;
@@ -216,6 +235,13 @@ export interface components {
                 [key: string]: string[];
             };
         };
+        /**
+         * @example {
+         *       "startUtc": "2025-06-01T09:00:00Z",
+         *       "endUtc": "2025-06-01T09:30:00Z",
+         *       "eventTypeId": "et-1"
+         *     }
+         */
         Slot: {
             /**
              * Format: date-time
@@ -253,6 +279,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": "et-1",
+                     *         "name": "Consultation",
+                     *         "durationMinutes": 30
+                     *       }
+                     *     ]
+                     */
                     "application/json": components["schemas"]["EventType"][];
                 };
             };
@@ -276,6 +311,20 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": "bk-1",
+                     *         "eventTypeId": "et-1",
+                     *         "eventTypeName": "Consultation",
+                     *         "startUtc": "2025-06-01T09:00:00Z",
+                     *         "endUtc": "2025-06-01T09:30:00Z",
+                     *         "guestName": "Alice Johnson",
+                     *         "guestEmail": "alice@example.com",
+                     *         "createdAtUtc": "2025-05-20T08:00:00Z"
+                     *       }
+                     *     ]
+                     */
                     "application/json": components["schemas"]["Booking"][];
                 };
             };
@@ -290,6 +339,12 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "name": "Consultation",
+                 *       "durationMinutes": 30
+                 *     }
+                 */
                 "application/json": components["schemas"]["EventTypeCreate"];
             };
         };
@@ -300,6 +355,13 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "id": "et-1",
+                     *       "name": "Consultation",
+                     *       "durationMinutes": 30
+                     *     }
+                     */
                     "application/json": components["schemas"]["EventType"];
                 };
             };
@@ -331,6 +393,13 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "id": "et-1",
+                     *       "name": "Consultation",
+                     *       "durationMinutes": 30
+                     *     }
+                     */
                     "application/json": components["schemas"]["EventType"];
                 };
             };
@@ -356,6 +425,12 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "name": "Consultation",
+                 *       "durationMinutes": 60
+                 *     }
+                 */
                 "application/json": components["schemas"]["EventTypeUpdate"];
             };
         };
@@ -366,6 +441,13 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "id": "et-1",
+                     *       "name": "Consultation",
+                     *       "durationMinutes": 60
+                     *     }
+                     */
                     "application/json": components["schemas"]["EventType"];
                 };
             };
@@ -427,6 +509,14 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "eventTypeId": "et-1",
+                 *       "startUtc": "2025-06-01T09:00:00Z",
+                 *       "guestName": "Alice Johnson",
+                 *       "guestEmail": "alice@example.com"
+                 *     }
+                 */
                 "application/json": components["schemas"]["BookingCreate"];
             };
         };
@@ -437,6 +527,18 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "id": "bk-1",
+                     *       "eventTypeId": "et-1",
+                     *       "eventTypeName": "Consultation",
+                     *       "startUtc": "2025-06-01T09:00:00Z",
+                     *       "endUtc": "2025-06-01T09:30:00Z",
+                     *       "guestName": "Alice Johnson",
+                     *       "guestEmail": "alice@example.com",
+                     *       "createdAtUtc": "2025-05-20T08:00:00Z"
+                     *     }
+                     */
                     "application/json": components["schemas"]["Booking"];
                 };
             };
@@ -484,6 +586,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": "et-1",
+                     *         "name": "Consultation",
+                     *         "durationMinutes": 30
+                     *       }
+                     *     ]
+                     */
                     "application/json": components["schemas"]["EventType"][];
                 };
             };
@@ -540,6 +651,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "startUtc": "2025-06-01T09:00:00Z",
+                     *         "endUtc": "2025-06-01T09:30:00Z",
+                     *         "eventTypeId": "et-1"
+                     *       }
+                     *     ]
+                     */
                     "application/json": components["schemas"]["Slot"][];
                 };
             };

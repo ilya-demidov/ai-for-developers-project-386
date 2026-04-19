@@ -56,7 +56,7 @@ The generated file `frontend/src/api/generated.ts` is committed to the repo — 
 ## Architecture
 
 - **`spec/`** — TypeSpec API contract (single file `main.tsp`). Admin routes prefixed `/api/admin/`, public routes prefixed `/api/`.
-- **`mock/`** — Prism mock server Docker image. Uses `--dynamic` flag for realistic mock responses.
+- **`mock/`** — Prism mock server Docker image. Returns examples from OpenAPI spec (defined via `@opExample` in TypeSpec).
 - **`frontend/`** — React 19 + Vite + Mantine 9 + TanStack Query + Zod 4 + dayjs. React Router with `createBrowserRouter`.
 
 ### Frontend structure
