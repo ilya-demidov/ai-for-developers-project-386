@@ -1,0 +1,10 @@
+.day {
+  &[data-selected] {
+    background-color: var(--mantine-color-orange-6);
+    color: white;
+  }
+
+  &[data-disabled] {
+    color: var(--mantine-color-gray-4);
+  }
+}

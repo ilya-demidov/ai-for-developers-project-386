@@ -2,6 +2,7 @@ import { Calendar } from '@mantine/dates';
 import { Paper, Text } from '@mantine/core';
 import dayjs from 'dayjs';
 import { isWithinBookingWindow } from '../lib/time';
+import classes from './MonthCalendar.module.css';
 
 interface MonthCalendarProps {
   selectedDate: Date | null;
@@ -38,16 +39,8 @@ export function MonthCalendar({ selectedDate, onSelectDate }: MonthCalendarProps
             onClick: () => handleDateSelect(dateStr),
           };
         }}
-        styles={{
-          day: {
-            '&[data-selected]': {
-              backgroundColor: 'var(--mantine-color-orange-6)',
-              color: 'white',
-            },
-            '&[data-disabled]': {
-              color: 'var(--mantine-color-gray-4)',
-            },
-          },
+        classNames={{
+          day: classes.day,
         }}
       />
     </Paper>
