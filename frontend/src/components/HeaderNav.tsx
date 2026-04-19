@@ -32,7 +32,7 @@ function NavLink({ to, label }: NavLinkProps) {
 
 export function HeaderNav() {
   return (
-    <Group justify="space-between" h="100%" px="md">
+    <Group justify="space-between" h="100%" px="md" py="xs" wrap="wrap">
       <Group gap="xs">
         <IconCalendarTime size={28} color="#fd7e14" />
         <Text fw={700} size="lg">
