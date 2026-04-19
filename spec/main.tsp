@@ -138,6 +138,7 @@ namespace Admin {
   namespace AdminRoutes {
     @doc("List all event types")
     @get
+    @route("/event-types")
     @opExample(#{returnType: #[#{id: "et-1", name: "Consultation", durationMinutes: 30}]})
     op listEventTypes(): EventType[];
 

@@ -4,23 +4,6 @@
  */
 
 export interface paths {
-    "/api/admin": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description List all event types */
-        get: operations["AdminRoutes_listEventTypes"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/admin/bookings": {
         parameters: {
             query?: never;
@@ -45,7 +28,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** @description List all event types */
+        get: operations["AdminRoutes_listEventTypes"];
         put?: never;
         /** @description Create a new event type */
         post: operations["AdminRoutes_createEventType"];
@@ -264,35 +248,6 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    AdminRoutes_listEventTypes: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example [
-                     *       {
-                     *         "id": "et-1",
-                     *         "name": "Consultation",
-                     *         "durationMinutes": 30
-                     *       }
-                     *     ]
-                     */
-                    "application/json": components["schemas"]["EventType"][];
-                };
-            };
-        };
-    };
     AdminRoutes_listBookings: {
         parameters: {
             query?: {
@@ -326,6 +281,35 @@ export interface operations {
                      *     ]
                      */
                     "application/json": components["schemas"]["Booking"][];
+                };
+            };
+        };
+    };
+    AdminRoutes_listEventTypes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The request has succeeded. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": "et-1",
+                     *         "name": "Consultation",
+                     *         "durationMinutes": 30
+                     *       }
+                     *     ]
+                     */
+                    "application/json": components["schemas"]["EventType"][];
                 };
             };
         };
