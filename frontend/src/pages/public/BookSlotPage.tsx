@@ -11,6 +11,7 @@ import {
   Group,
   Paper,
   Loader,
+  Box,
 } from '@mantine/core';
 import { usePublicEventType, useSlots } from '../../api/hooks';
 import { HostBadge } from '../../components/HostBadge';
@@ -23,6 +24,9 @@ import {
   toLocalDateLabel,
 } from '../../lib/time';
 import type { SlotWithStatus } from '../../lib/time';
+
+// Фиксированная высота для календаря на десктопе
+const CALENDAR_HEIGHT = 520;
 
 export function BookSlotPage() {
   const { id } = useParams<{ id: string }>();
@@ -86,35 +90,49 @@ export function BookSlotPage() {
 
   return (
     <Container size="xl" py="xl">
-      <Stack gap="xl">
+      <Stack gap="lg">
         <Title order={2}>
-          {eventType.name}
+          {eventType.name} {eventType.durationMinutes} минут
         </Title>
 
-        <Grid gap={{ base: 20, md: 40 }}>
+        <Grid gutter={{ base: 16, md: 24 }}>
           {/* Left Column - Event Info */}
           <Grid.Col span={{ base: 12, md: 3 }}>
-            <Card withBorder radius="lg" p="md">
-              <Stack gap="md">
+            <Card
+              withBorder
+              radius="md"
+              p="lg"
+              h={{ base: 'auto', md: CALENDAR_HEIGHT }}
+              style={{
+                borderColor: '#e9ecef',
+              }}
+            >
+              <Stack gap="lg">
                 <HostBadge size="sm" />
 
                 <div>
-                  <Group gap="xs" mb={4}>
-                    <Text fw={600}>{eventType.name}</Text>
-                    <Badge size="sm" variant="light" color="gray">
+                  <Group gap="xs" mb={8}>
+                    <Text fw={600} size="md">
+                      {eventType.name}
+                    </Text>
+                    <Badge size="sm" variant="light" color="gray" radius="sm">
                       {eventType.durationMinutes} мин
                     </Badge>
                   </Group>
                   {eventType.description && (
-                    <Text size="sm" c="dimmed">
+                    <Text size="sm" c="dimmed" lh={1.5}>
                       {eventType.description}
                     </Text>
                   )}
                 </div>
 
-                <Stack gap="xs">
-                  <Paper p="sm" radius="md" bg="gray.0">
-                    <Text size="xs" c="dimmed" mb={2}>
+                <Stack gap="sm">
+                  <Paper
+                    p="sm"
+                    radius="sm"
+                    styles={{ root: { backgroundColor: '#f1f3f5' } }}
+                  >
+                    <Text size="xs" c="dimmed" mb={4}>
                       Выбранная дата
                     </Text>
                     <Text size="sm" fw={500}>
@@ -124,8 +142,12 @@ export function BookSlotPage() {
                     </Text>
                   </Paper>
 
-                  <Paper p="sm" radius="md" bg="gray.0">
-                    <Text size="xs" c="dimmed" mb={2}>
+                  <Paper
+                    p="sm"
+                    radius="sm"
+                    styles={{ root: { backgroundColor: '#f1f3f5' } }}
+                  >
+                    <Text size="xs" c="dimmed" mb={4}>
                       Выбранное время
                     </Text>
                     <Text size="sm" fw={500}>
@@ -141,22 +163,28 @@ export function BookSlotPage() {
 
           {/* Middle Column - Calendar */}
           <Grid.Col span={{ base: 12, md: 5 }}>
-            <MonthCalendar
-              selectedDate={selectedDate}
-              onSelectDate={handleSelectDate}
-            />
+            <Box h={{ base: 'auto', md: CALENDAR_HEIGHT }}>
+              <MonthCalendar
+                selectedDate={selectedDate}
+                onSelectDate={handleSelectDate}
+                eventTypeId={id || ''}
+                durationMinutes={eventType.durationMinutes}
+              />
+            </Box>
           </Grid.Col>
 
           {/* Right Column - Slot Status */}
           <Grid.Col span={{ base: 12, md: 4 }}>
-            <SlotStatusList
-              slots={slotsWithStatus}
-              selectedSlot={selectedSlot}
-              onSelectSlot={handleSelectSlot}
-              onBack={handleBack}
-              onContinue={handleContinue}
-              isLoading={isLoadingSlots}
-            />
+            <Box h={{ base: 'auto', md: CALENDAR_HEIGHT }}>
+              <SlotStatusList
+                slots={slotsWithStatus}
+                selectedSlot={selectedSlot}
+                onSelectSlot={handleSelectSlot}
+                onBack={handleBack}
+                onContinue={handleContinue}
+                isLoading={isLoadingSlots}
+              />
+            </Box>
           </Grid.Col>
         </Grid>
       </Stack>

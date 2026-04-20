@@ -1,10 +1,42 @@
-.day {
+.calendarDay {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 4px;
+  min-height: 48px;
+
+  &:hover:not([data-disabled]):not([data-selected]) {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+  }
+
   &[data-selected] {
-    background-color: var(--mantine-color-orange-6);
-    color: white;
+    background-color: #fd7e14;
+    border-color: #fd7e14;
+
+    &:hover {
+      background-color: #e96b0a;
+      border-color: #e96b0a;
+    }
   }
 
   &[data-disabled] {
-    color: var(--mantine-color-gray-4);
+    cursor: not-allowed;
+    background-color: transparent;
+    border-color: #f1f3f5;
+
+    & * {
+      color: #dee2e6 !important;
+    }
+  }
+
+  &:not([data-current-month]) {
+    border-color: #f1f3f5;
   }
 }

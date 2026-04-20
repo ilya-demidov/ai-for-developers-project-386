@@ -1,4 +1,4 @@
-import { Paper, Stack, Group, Text, Button, ScrollArea } from '@mantine/core';
+import { Paper, Stack, Group, Text, Button, Box, ScrollArea } from '@mantine/core';
 import type { SlotWithStatus } from '../lib/time';
 import { formatSlotRange } from '../lib/time';
 
@@ -20,19 +20,33 @@ export function SlotStatusList({
   isLoading = false,
 }: SlotStatusListProps) {
   return (
-    <Paper withBorder radius="lg" p="md" style={{ height: '100%' }}>
+    <Paper
+      withBorder
+      radius="md"
+      p="lg"
+      styles={{
+        root: {
+          borderColor: '#e9ecef',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        },
+      }}
+    >
       <Text fw={600} size="lg" mb="md">
         Статус слотов
       </Text>
 
-      <ScrollArea style={{ height: 'calc(100% - 140px)' }}>
-        <Stack gap="xs">
+      <ScrollArea
+        scrollbarSize={6}
+        style={{ flex: 1, minHeight: 0 }}>
+        <Stack gap="xs" pr={4}>
           {isLoading ? (
-            <Text c="dimmed" ta="center">
+            <Text c="dimmed" ta="center" py="xl">
               Загрузка...
             </Text>
           ) : slots.length === 0 ? (
-            <Text c="dimmed" ta="center">
+            <Text c="dimmed" ta="center" py="xl">
               Нет доступных слотов
             </Text>
           ) : (
@@ -44,27 +58,41 @@ export function SlotStatusList({
                 <Group
                   key={slot.startUtc}
                   justify="space-between"
-                  p="sm"
-                  style={{
-                    borderRadius: '8px',
-                    backgroundColor: isSelected
-                      ? 'var(--mantine-color-orange-1)'
-                      : 'transparent',
-                    cursor: isFree ? 'pointer' : 'not-allowed',
-                    border: isSelected
-                      ? '1px solid var(--mantine-color-orange-6)'
-                      : '1px solid var(--mantine-color-gray-2)',
+                  px="sm"
+                  py={8}
+                  styles={{
+                    root: {
+                      borderRadius: '6px',
+                      backgroundColor: isSelected
+                        ? '#fff5e6'
+                        : isFree
+                          ? 'white'
+                          : '#f8f9fa',
+                      cursor: isFree ? 'pointer' : 'not-allowed',
+                      border: `1px solid ${
+                        isSelected ? '#fd7e14' : isFree ? '#e9ecef' : '#f1f3f5'
+                      }`,
+                      opacity: isFree ? 1 : 0.7,
+                      transition: 'all 0.15s ease',
+                      '&:hover': isFree
+                        ? {
+                            backgroundColor: isSelected ? '#fff5e6' : '#f8f9fa',
+                            borderColor: '#fd7e14',
+                          }
+                        : undefined,
+                    },
                   }}
                   onClick={() => isFree && onSelectSlot(slot.startUtc)}
                 >
-                  <Text size="sm" fw={isSelected ? 500 : 400}>
-                    {formatSlotRange(slot.startUtc, slot.endUtc)}
-                  </Text>
                   <Text
                     size="sm"
-                    c={isFree ? 'teal.6' : 'red.6'}
-                    fw={500}
+                    fw={isSelected ? 500 : 400}
+                    c={isFree ? 'dark' : 'dimmed'}
+                    style={{ fontFamily: 'monospace' }}
                   >
+                    {formatSlotRange(slot.startUtc, slot.endUtc)}
+                  </Text>
+                  <Text size="sm" c={isFree ? 'green.6' : 'red.6'} fw={500}>
                     {isFree ? 'Свободно' : 'Занято'}
                   </Text>
                 </Group>
@@ -74,14 +102,33 @@ export function SlotStatusList({
         </Stack>
       </ScrollArea>
 
-      <Group justify="space-between" mt="md">
-        <Button variant="default" onClick={onBack}>
+      <Group justify="space-between" pt="lg" style={{ marginTop: 'auto' }}>
+        <Button
+          variant="default"
+          size="sm"
+          radius="md"
+          onClick={onBack}
+          styles={{
+            root: {
+              borderColor: '#e9ecef',
+              fontWeight: 500,
+            },
+          }}
+        >
           Назад
         </Button>
         <Button
           color="orange"
+          size="sm"
+          radius="md"
           onClick={onContinue}
           disabled={!selectedSlot}
+          styles={{
+            root: {
+              backgroundColor: selectedSlot ? '#fd7e14' : '#e9ecef',
+              fontWeight: 500,
+            },
+          }}
         >
           Продолжить
         </Button>
