@@ -142,11 +142,6 @@ export function MonthCalendar({
             >
               {day.date.format('D')}
             </Text>
-            {day.isCurrentMonth && !day.isDisabled && (
-              <Text size="xs" c="gray.5" ta="center" mt={2}>
-                св.
-              </Text>
-            )}
           </Box>
         ))}
       </SimpleGrid>
