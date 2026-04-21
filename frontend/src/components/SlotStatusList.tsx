@@ -1,4 +1,4 @@
-import { Paper, Stack, Group, Text, Button, Box, ScrollArea } from '@mantine/core';
+import { Paper, Stack, Group, Text, Button, ScrollArea } from '@mantine/core';
 import type { SlotWithStatus } from '../lib/time';
 import { formatSlotRange } from '../lib/time';
 

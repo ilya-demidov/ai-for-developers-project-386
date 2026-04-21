@@ -95,7 +95,7 @@ export function BookSlotPage() {
           {eventType.name} {eventType.durationMinutes} минут
         </Title>
 
-        <Grid gutter={{ base: 16, md: 24 }}>
+        <Grid gap={{ base: 16, md: 24 }}>
           {/* Left Column - Event Info */}
           <Grid.Col span={{ base: 12, md: 3 }}>
             <Card
