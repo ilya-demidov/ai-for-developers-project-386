@@ -7,11 +7,6 @@ export function App() {
     <AppShell
       header={{ height: 'auto', offset: false }}
       styles={{
-        root: {
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: '100vh',
-        },
         header: {
           position: 'relative',
         },
@@ -21,7 +16,7 @@ export function App() {
         <HeaderNav />
       </AppShell.Header>
 
-      <AppShell.Main style={{ flex: 1 }}>
+      <AppShell.Main style={{ minHeight: 'calc(100dvh - 62px)' }}>
         <Outlet />
       </AppShell.Main>
     </AppShell>

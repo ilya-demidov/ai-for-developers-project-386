@@ -6,7 +6,7 @@ export function HomePage() {
   return (
     <div
       style={{
-        minHeight: 'calc(100vh - 60px)',
+        minHeight: 'calc(100dvh - 62px)',
         background: 'linear-gradient(135deg, #dbeafe 0%, #fff7ed 100%)',
         padding: '60px 0',
       }}
