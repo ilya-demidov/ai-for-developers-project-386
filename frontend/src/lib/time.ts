@@ -1,9 +1,10 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { WORK_START_HOUR, WORK_END_HOUR } from './env';
+import timezone from 'dayjs/plugin/timezone';
+import { WORK_START_HOUR, WORK_END_HOUR, HOST_TIMEZONE } from './env';
 
-// Extend dayjs with UTC plugin
 dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export interface SlotWithStatus {
   startUtc: string;
@@ -11,90 +12,76 @@ export interface SlotWithStatus {
   status: 'free' | 'busy';
 }
 
-/**
- * Generate all potential slots for a day based on work hours and event duration
- */
+function toTimestamp(iso: string): number {
+  return new Date(iso).getTime();
+}
+
+function dateToHostDay(date: Date): dayjs.Dayjs {
+  const y = date.getFullYear();
+  const m = date.getMonth() + 1;
+  const d = date.getDate();
+  return dayjs.tz(`${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`, HOST_TIMEZONE);
+}
+
 export function generateDayGrid(
   date: Date,
   durationMinutes: number,
   workStartHour: number = WORK_START_HOUR,
-  workEndHour: number = WORK_END_HOUR
+  workEndHour: number = WORK_END_HOUR,
 ): { startUtc: string; endUtc: string }[] {
   const slots: { startUtc: string; endUtc: string }[] = [];
-  const startOfDay = dayjs(date).startOf('day');
+  const localDayStart = dateToHostDay(date);
 
-  for (let hour = workStartHour; hour < workEndHour; hour++) {
-    for (let minute = 0; minute < 60; minute += durationMinutes) {
-      const slotStart = startOfDay.add(hour, 'hour').add(minute, 'minute');
-      const slotEnd = slotStart.add(durationMinutes, 'minute');
+  const workStartUtc = localDayStart.add(workStartHour, 'hour').utc();
+  const workEndUtc = localDayStart.add(workEndHour, 'hour').utc();
 
-      // Don't exceed work end
-      if (slotEnd.hour() > workEndHour || (slotEnd.hour() === workEndHour && slotEnd.minute() > 0)) {
-        break;
-      }
-
-      slots.push({
-        startUtc: slotStart.utc().format('YYYY-MM-DDTHH:mm:ss[Z]'),
-        endUtc: slotEnd.utc().format('YYYY-MM-DDTHH:mm:ss[Z]'),
-      });
-    }
+  let current = workStartUtc;
+  while (current.add(durationMinutes, 'minute').valueOf() <= workEndUtc.valueOf()) {
+    const slotEnd = current.add(durationMinutes, 'minute');
+    slots.push({
+      startUtc: current.format('YYYY-MM-DDTHH:mm:ss[Z]'),
+      endUtc: slotEnd.format('YYYY-MM-DDTHH:mm:ss[Z]'),
+    });
+    current = slotEnd;
   }
 
   return slots;
 }
 
-/**
- * Normalize ISO string to remove milliseconds for consistent comparison
- */
-function normalizeIso(iso: string): string {
-  return iso.replace(/\.\d{3}Z$/, 'Z');
-}
-
-/**
- * Merge generated grid with free slots from API to mark busy slots
- */
 export function mergeWithFreeSlots(
   grid: { startUtc: string; endUtc: string }[],
-  freeSlots: { startUtc: string; endUtc: string }[]
+  freeSlots: { startUtc: string; endUtc: string }[],
 ): SlotWithStatus[] {
-  const freeSlotSet = new Set(freeSlots.map((s) => normalizeIso(s.startUtc)));
+  const freeTimestamps = new Set(freeSlots.map((s) => toTimestamp(s.startUtc)));
 
   return grid.map((slot) => ({
     ...slot,
-    status: freeSlotSet.has(normalizeIso(slot.startUtc)) ? 'free' : 'busy',
+    status: freeTimestamps.has(toTimestamp(slot.startUtc)) ? 'free' : 'busy',
   }));
 }
 
-/**
- * Format UTC ISO string to local time label (HH:mm)
- */
 export function toLocalTimeLabel(utcIso: string): string {
-  return dayjs(utcIso).local().format('HH:mm');
+  return dayjs.utc(utcIso).tz(HOST_TIMEZONE).format('HH:mm');
 }
 
-/**
- * Format UTC ISO string to local date label (dddd, D MMMM)
- */
-export function toLocalDateLabel(utcIso: string): string {
-  return dayjs(utcIso).local().format('dddd, D MMMM');
+export function toLocalDateLabel(utcIsoOrDate: string | Date): string {
+  if (typeof utcIsoOrDate === 'string') {
+    return dayjs.utc(utcIsoOrDate).tz(HOST_TIMEZONE).format('dddd, D MMMM');
+  }
+  return dateToHostDay(utcIsoOrDate).format('dddd, D MMMM');
 }
 
-/**
- * Get UTC start and end for a local date (for API queries)
- */
 export function getUtcRangeForLocalDate(date: Date): { from: string; to: string } {
-  const startOfDay = dayjs(date).startOf('day').utc();
-  const endOfDay = dayjs(date).endOf('day').utc();
+  const localDay = dateToHostDay(date);
+  const startOfDay = localDay.startOf('day');
+  const endOfDay = localDay.endOf('day');
 
   return {
-    from: startOfDay.format('YYYY-MM-DDTHH:mm:ss[Z]'),
-    to: endOfDay.format('YYYY-MM-DDTHH:mm:ss[Z]'),
+    from: startOfDay.utc().format('YYYY-MM-DDTHH:mm:ss[Z]'),
+    to: endOfDay.utc().format('YYYY-MM-DDTHH:mm:ss[Z]'),
   };
 }
 
-/**
- * Get UTC range for the booking window (next N days)
- */
 export function getBookingWindowRange(days: number = 14): { from: string; to: string } {
   const now = dayjs().utc();
   return {
@@ -103,20 +90,14 @@ export function getBookingWindowRange(days: number = 14): { from: string; to: st
   };
 }
 
-/**
- * Check if a date is within the booking window
- */
 export function isWithinBookingWindow(date: Date, days: number = 14): boolean {
-  const now = dayjs().startOf('day');
-  const target = dayjs(date).startOf('day');
+  const now = dayjs().tz(HOST_TIMEZONE).startOf('day');
+  const target = dateToHostDay(date).startOf('day');
   const maxDate = now.add(days, 'day');
 
   return !target.isBefore(now) && !target.isAfter(maxDate);
 }
 
-/**
- * Format slot time range for display
- */
 export function formatSlotRange(startUtc: string, endUtc: string): string {
   const start = toLocalTimeLabel(startUtc);
   const end = toLocalTimeLabel(endUtc);

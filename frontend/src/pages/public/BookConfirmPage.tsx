@@ -20,10 +20,13 @@ import { zodResolver } from 'mantine-form-zod-resolver';
 import { notifications } from '@mantine/notifications';
 import { IconArrowLeft, IconCheck } from '@tabler/icons-react';
 import { z } from 'zod';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+dayjs.extend(utc);
 import { usePublicEventType, useCreateBooking } from '../../api/hooks';
 import { HostBadge } from '../../components/HostBadge';
 import { ProblemAlert } from '../../components/ProblemAlert';
-import { toLocalDateLabel, formatSlotRange } from '../../lib/time';
+import { toLocalDateLabel, toLocalTimeLabel } from '../../lib/time';
 import type { ApiError } from '../../api/client';
 
 const bookingSchema = z.object({
@@ -172,7 +175,7 @@ export function BookConfirmPage() {
                       Время
                     </Text>
                     <Text size="sm" fw={500}>
-                      {formatSlotRange(startUtc, startUtc)}
+                      {`${toLocalTimeLabel(startUtc)} – ${toLocalTimeLabel(dayjs.utc(startUtc).add(eventType.durationMinutes, 'minute').toISOString())}`}
                     </Text>
                   </Paper>
                 </Stack>

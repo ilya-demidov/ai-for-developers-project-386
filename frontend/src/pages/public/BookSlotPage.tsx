@@ -22,6 +22,7 @@ import {
   mergeWithFreeSlots,
   getUtcRangeForLocalDate,
   toLocalDateLabel,
+  toLocalTimeLabel,
 } from '../../lib/time';
 import type { SlotWithStatus } from '../../lib/time';
 
@@ -137,7 +138,7 @@ export function BookSlotPage() {
                     </Text>
                     <Text size="sm" fw={500}>
                       {selectedDate
-                        ? toLocalDateLabel(selectedDate.toISOString())
+                        ? toLocalDateLabel(selectedDate)
                         : 'Дата не выбрана'}
                     </Text>
                   </Paper>
@@ -152,7 +153,7 @@ export function BookSlotPage() {
                     </Text>
                     <Text size="sm" fw={500}>
                       {selectedSlot
-                        ? toLocalDateLabel(selectedSlot)
+                        ? toLocalTimeLabel(selectedSlot)
                         : 'Время не выбрано'}
                     </Text>
                   </Paper>

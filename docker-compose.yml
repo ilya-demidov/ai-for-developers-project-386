@@ -7,6 +7,17 @@ services:
       - ./spec/tsp-output:/spec:ro
     networks:
       - minical-network
+    profiles:
+      - mock
+
+  api:
+    build: ./backend
+    ports:
+      - "8081:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - minical-network
 
   web:
     build:
@@ -16,18 +27,19 @@ services:
       - "5173:5173"
     environment:
       - VITE_API_BASE_URL=/api
-      - VITE_API_PROXY_TARGET=http://mock:8080
+      - VITE_API_PROXY_TARGET=http://api:8080
       - VITE_HOST_NAME=Tota
       - VITE_HOST_ROLE=Host
       - VITE_WORK_START_HOUR=9
       - VITE_WORK_END_HOUR=18
+      - VITE_HOST_TIMEZONE=Europe/Moscow
     volumes:
       - ./frontend:/app
       - /app/node_modules
     networks:
       - minical-network
     depends_on:
-      - mock
+      - api
 
 networks:
   minical-network:
