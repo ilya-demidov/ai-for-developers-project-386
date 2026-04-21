@@ -34,13 +34,20 @@ export function generateDayGrid(
       }
 
       slots.push({
-        startUtc: slotStart.utc().toISOString(),
-        endUtc: slotEnd.utc().toISOString(),
+        startUtc: slotStart.utc().format('YYYY-MM-DDTHH:mm:ss[Z]'),
+        endUtc: slotEnd.utc().format('YYYY-MM-DDTHH:mm:ss[Z]'),
       });
     }
   }
 
   return slots;
+}
+
+/**
+ * Normalize ISO string to remove milliseconds for consistent comparison
+ */
+function normalizeIso(iso: string): string {
+  return iso.replace(/\.\d{3}Z$/, 'Z');
 }
 
 /**
@@ -50,11 +57,11 @@ export function mergeWithFreeSlots(
   grid: { startUtc: string; endUtc: string }[],
   freeSlots: { startUtc: string; endUtc: string }[]
 ): SlotWithStatus[] {
-  const freeSlotSet = new Set(freeSlots.map((s) => s.startUtc));
+  const freeSlotSet = new Set(freeSlots.map((s) => normalizeIso(s.startUtc)));
 
   return grid.map((slot) => ({
     ...slot,
-    status: freeSlotSet.has(slot.startUtc) ? 'free' : 'busy',
+    status: freeSlotSet.has(normalizeIso(slot.startUtc)) ? 'free' : 'busy',
   }));
 }
 
@@ -80,8 +87,8 @@ export function getUtcRangeForLocalDate(date: Date): { from: string; to: string 
   const endOfDay = dayjs(date).endOf('day').utc();
 
   return {
-    from: startOfDay.toISOString(),
-    to: endOfDay.toISOString(),
+    from: startOfDay.format('YYYY-MM-DDTHH:mm:ss[Z]'),
+    to: endOfDay.format('YYYY-MM-DDTHH:mm:ss[Z]'),
   };
 }
 
@@ -91,8 +98,8 @@ export function getUtcRangeForLocalDate(date: Date): { from: string; to: string 
 export function getBookingWindowRange(days: number = 14): { from: string; to: string } {
   const now = dayjs().utc();
   return {
-    from: now.toISOString(),
-    to: now.add(days, 'day').toISOString(),
+    from: now.format('YYYY-MM-DDTHH:mm:ss[Z]'),
+    to: now.add(days, 'day').format('YYYY-MM-DDTHH:mm:ss[Z]'),
   };
 }
 
