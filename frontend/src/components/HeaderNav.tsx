@@ -33,12 +33,14 @@ function NavLink({ to, label }: NavLinkProps) {
 export function HeaderNav() {
   return (
     <Group justify="space-between" h="100%" px="md" py="xs" wrap="wrap">
-      <Group gap="xs">
-        <IconCalendarTime size={28} color="#fd7e14" />
-        <Text fw={700} size="lg">
-          Calendar
-        </Text>
-      </Group>
+      <UnstyledButton component={Link} to="/" style={{ textDecoration: 'none' }}>
+        <Group gap="xs">
+          <IconCalendarTime size={28} color="#fd7e14" />
+          <Text fw={700} size="lg" c="#495057">
+            Calendar
+          </Text>
+        </Group>
+      </UnstyledButton>
 
       <Group gap={4}>
         <NavLink to="/event-types" label="Записаться" />
