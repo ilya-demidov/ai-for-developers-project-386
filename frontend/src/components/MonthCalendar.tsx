@@ -116,8 +116,8 @@ export function MonthCalendar({
         ))}
       </SimpleGrid>
 
-      {/* Calendar days - with scroll if needed */}
-      <Box style={{ flex: 1, overflow: 'auto' }}>
+      {/* Calendar days */}
+      <Box style={{ flex: 1 }}>
         <SimpleGrid cols={7} spacing={4}>
         {days.map((day, index) => (
           <Box
