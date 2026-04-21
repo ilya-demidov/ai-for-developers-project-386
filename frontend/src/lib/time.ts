@@ -76,8 +76,12 @@ export function getUtcRangeForLocalDate(date: Date): { from: string; to: string 
   const startOfDay = localDay.startOf('day');
   const endOfDay = localDay.endOf('day');
 
+  const now = dayjs().utc();
+  const fromUtc = startOfDay.utc();
+  const from = now.isAfter(fromUtc) ? now : fromUtc;
+
   return {
-    from: startOfDay.utc().format('YYYY-MM-DDTHH:mm:ss[Z]'),
+    from: from.format('YYYY-MM-DDTHH:mm:ss[Z]'),
     to: endOfDay.utc().format('YYYY-MM-DDTHH:mm:ss[Z]'),
   };
 }
@@ -88,6 +92,16 @@ export function getBookingWindowRange(days: number = 14): { from: string; to: st
     from: now.format('YYYY-MM-DDTHH:mm:ss[Z]'),
     to: now.add(days, 'day').format('YYYY-MM-DDTHH:mm:ss[Z]'),
   };
+}
+
+export function hasAvailableSlots(
+  date: Date,
+  workEndHour: number = WORK_END_HOUR,
+): boolean {
+  const localDay = dateToHostDay(date);
+  const workEndUtc = localDay.add(workEndHour, 'hour').utc();
+  const now = dayjs().utc();
+  return now.isBefore(workEndUtc);
 }
 
 export function isWithinBookingWindow(date: Date, days: number = 14): boolean {

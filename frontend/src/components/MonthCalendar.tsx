@@ -3,7 +3,7 @@ import { Paper, Text, Group, ActionIcon, SimpleGrid, Box } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
-import { isWithinBookingWindow } from '../lib/time';
+import { isWithinBookingWindow, hasAvailableSlots } from '../lib/time';
 import classes from './MonthCalendar.module.css';
 
 interface MonthCalendarProps {
@@ -22,7 +22,7 @@ export function MonthCalendar({
   const [currentMonth, setCurrentMonth] = useState(dayjs());
 
   const handleDateSelect = (date: Date) => {
-    if (isWithinBookingWindow(date)) {
+    if (isWithinBookingWindow(date) && hasAvailableSlots(date)) {
       onSelectDate(date);
     }
   };
@@ -57,7 +57,7 @@ export function MonthCalendar({
         isCurrentMonth: current.month() === currentMonth.month(),
         isToday: current.isSame(dayjs(), 'day'),
         isSelected: selectedDate ? current.isSame(selectedDate, 'day') : false,
-        isDisabled: !isWithinBookingWindow(date),
+        isDisabled: !isWithinBookingWindow(date) || !hasAvailableSlots(date),
       });
       current = current.add(1, 'day');
     }

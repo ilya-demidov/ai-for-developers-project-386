@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router-dom';
 import { router } from './routes';
 import { theme } from './theme';
+import { ApiError } from './api/client';
 
 // Import Mantine styles
 import '@mantine/core/styles.css';
@@ -27,6 +28,10 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 30000,
       refetchOnWindowFocus: false,
+      retry: (failureCount, error) => {
+        if (error instanceof ApiError && error.status >= 400 && error.status < 500) return false;
+        return failureCount < 3;
+      },
     },
   },
 });
