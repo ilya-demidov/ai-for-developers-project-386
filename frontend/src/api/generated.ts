@@ -67,7 +67,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Create a new booking for a selected slot. The server calculates endUtc = startUtc + EventType.durationMinutes. Before saving, the server checks for overlaps with existing bookings (all event types) in a transaction to prevent race conditions. startUtc must fall within valid working hours and the 14-day booking window. Returns 409 Conflict if the slot is already taken. Returns 400 if startUtc is invalid (outside working hours, outside 14-day window, in the past). Returns 404 if eventTypeId does not exist. */
+        /** @description Create a new booking for a selected slot. The server calculates endUtc = startUtc + EventType.durationMinutes. Before saving, the server checks for overlaps with existing bookings (all event types) in a transaction to prevent race conditions. startUtc must fall within valid working hours and the configured booking window. Returns 409 Conflict if the slot is already taken. Returns 400 if startUtc is invalid (outside working hours, outside booking window, in the past). Returns 404 if eventTypeId does not exist. */
         post: operations["PublicRoutes_createBooking"];
         delete?: never;
         options?: never;
@@ -116,7 +116,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Get free booking slots for a given event type within the next 14 days. Slots are computed based on the event type duration, owner working hours (server config), and exclude any slots that overlap with existing bookings of any event type. All returned slots have duration equal to EventType.durationMinutes. Slots are sorted by startUtc ascending. If from or to are not provided, defaults to [now, now + 14 days). Returns 400 if from >= to or values are outside the 14-day window. Returns 404 if eventTypeId does not exist. */
+        /** @description Get free booking slots for a given event type within the configured booking window. Slots are computed based on the event type duration, owner working hours (server config), and exclude any slots that overlap with existing bookings of any event type. All returned slots have duration equal to EventType.durationMinutes. Slots are sorted by startUtc ascending. If from or to are not provided, defaults to [now, now + bookingWindowDays). Returns 400 if from >= to or values are outside the booking window. Returns 404 if eventTypeId does not exist. */
         get: operations["PublicRoutes_getSlots"];
         put?: never;
         post?: never;

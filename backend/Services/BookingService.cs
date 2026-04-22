@@ -7,7 +7,6 @@ public class BookingService
 {
     private readonly IEventTypeStore _eventTypeStore;
     private readonly IBookingStore _bookingStore;
-    private readonly InMemoryBookingStore _concreteBookingStore;
     private readonly BookingWindowOptions _bookingWindow;
     private readonly SlotService _slotService;
 
@@ -19,7 +18,6 @@ public class BookingService
     {
         _eventTypeStore = eventTypeStore;
         _bookingStore = bookingStore;
-        _concreteBookingStore = (InMemoryBookingStore)bookingStore;
         _bookingWindow = bookingWindow;
         _slotService = slotService;
     }
@@ -38,7 +36,7 @@ public class BookingService
             throw new ArgumentException("Cannot book a slot in the past.");
 
         if (startUtc >= windowEnd || endUtc > windowEnd)
-            throw new ArgumentException("Booking is outside the 14-day booking window.");
+            throw new ArgumentException($"Booking is outside the {_bookingWindow.Days}-day booking window.");
 
         if (!_slotService.IsWithinWorkingHours(startUtc, endUtc))
             throw new ArgumentException("Booking is outside working hours.");
@@ -46,7 +44,7 @@ public class BookingService
         if (!_slotService.IsAlignedToSlotGrid(startUtc, eventType.DurationMinutes))
             throw new ArgumentException("Start time is not aligned to the slot grid.");
 
-        if (_concreteBookingStore.HasOverlap(startUtc, endUtc))
+        if (_bookingStore.HasOverlap(startUtc, endUtc))
             throw new InvalidOperationException("Slot is already booked.");
 
         var booking = new Booking

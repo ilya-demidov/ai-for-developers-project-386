@@ -47,7 +47,7 @@ public class SlotService
             }
             else
             {
-                throw new ArgumentException("Requested range is outside the 14-day booking window.");
+                throw new ArgumentException($"Requested range is outside the {_bookingWindow.Days}-day booking window.");
             }
         }
 
@@ -55,7 +55,7 @@ public class SlotService
             throw new ArgumentException("Parameter 'from' must be earlier than 'to'.");
 
         if (effectiveTo > windowEnd)
-            throw new ArgumentException("Requested range is outside the 14-day booking window.");
+            throw new ArgumentException($"Requested range is outside the {_bookingWindow.Days}-day booking window.");
 
         var candidates = GenerateCandidates(eventType, effectiveFrom, effectiveTo, now);
 

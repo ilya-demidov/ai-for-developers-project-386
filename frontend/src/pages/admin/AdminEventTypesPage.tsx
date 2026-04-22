@@ -22,6 +22,7 @@ import {
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useAdminEventTypes, useDeleteEventType } from '../../api/hooks';
+import { getProblemDetails } from '../../api/client';
 import { ProblemAlert } from '../../components/ProblemAlert';
 import { EventTypeFormModal } from './EventTypeFormModal';
 import type { EventType } from '../../types/api';
@@ -86,11 +87,7 @@ export function AdminEventTypesPage() {
 
         {error && (
           <ProblemAlert
-            problem={
-              error instanceof Error
-                ? undefined
-                : (error as { details?: { type?: string; title?: string; status?: number; detail?: string; errors?: Record<string, string[]> } }).details
-            }
+            problem={getProblemDetails(error)}
             title="Не удалось загрузить типы событий"
           />
         )}

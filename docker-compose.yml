@@ -27,12 +27,13 @@ services:
       - "5173:5173"
     environment:
       - VITE_API_BASE_URL=/api
-      - VITE_API_PROXY_TARGET=http://api:8080
+      - VITE_API_PROXY_TARGET=${VITE_API_PROXY_TARGET:-http://api:8080}
       - VITE_HOST_NAME=Tota
       - VITE_HOST_ROLE=Host
       - VITE_WORK_START_HOUR=9
       - VITE_WORK_END_HOUR=18
       - VITE_HOST_TIMEZONE=Europe/Moscow
+      - VITE_BOOKING_WINDOW_DAYS=14
     volumes:
       - ./frontend:/app
       - /app/node_modules

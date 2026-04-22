@@ -3,6 +3,7 @@ import { Container, Stack, Title, Text, Group, Loader, Button } from '@mantine/c
 import { IconPlus } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useAdminBookings } from '../../api/hooks';
+import { getProblemDetails } from '../../api/client';
 import { BookingCard } from '../../components/BookingCard';
 import { ProblemAlert } from '../../components/ProblemAlert';
 import { getBookingWindowRange } from '../../lib/time';
@@ -43,11 +44,7 @@ export function AdminBookingsPage() {
 
         {error && (
           <ProblemAlert
-            problem={
-              error instanceof Error
-                ? undefined
-                : (error as { details?: { type?: string; title?: string; status?: number; detail?: string; errors?: Record<string, string[]> } }).details
-            }
+            problem={getProblemDetails(error)}
             title="Не удалось загрузить бронирования"
           />
         )}

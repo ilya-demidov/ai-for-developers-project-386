@@ -1,6 +1,7 @@
 import { Container, Stack, Title, Text, SimpleGrid, Card, Group, Loader } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { usePublicEventTypes } from '../../api/hooks';
+import { getProblemDetails } from '../../api/client';
 import { HostBadge } from '../../components/HostBadge';
 import { EventTypeCard } from '../../components/EventTypeCard';
 import { ProblemAlert } from '../../components/ProblemAlert';
@@ -36,11 +37,7 @@ export function EventTypesListPage() {
         {/* Error Display */}
         {error && (
           <ProblemAlert
-            problem={
-              error instanceof Error
-                ? undefined
-                : (error as { details?: { type?: string; title?: string; status?: number; detail?: string; errors?: Record<string, string[]> } }).details
-            }
+            problem={getProblemDetails(error)}
             title="Не удалось загрузить типы событий"
           />
         )}

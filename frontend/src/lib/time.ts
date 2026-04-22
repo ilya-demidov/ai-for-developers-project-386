@@ -1,14 +1,13 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { WORK_START_HOUR, WORK_END_HOUR } from './env';
+import { BOOKING_WINDOW_DAYS, WORK_START_HOUR, WORK_END_HOUR } from './env';
 import {
   displayDayFromDayKey,
   formatDisplayDayKey,
   formatUtcInDisplayDate,
   formatUtcInDisplayTime,
   getHostTimezone,
-  nowInDisplayTimezone,
 } from './timezone';
 
 dayjs.extend(utc);
@@ -58,6 +57,15 @@ function getUtcRangeForDisplayDay(dayKey: string): {
     fromUtc: displayStart.utc(),
     toUtc: displayEndExclusive.utc(),
   };
+}
+
+function getBookingWindowUtcRange(days: number = BOOKING_WINDOW_DAYS): {
+  fromUtc: dayjs.Dayjs;
+  toUtc: dayjs.Dayjs;
+} {
+  const fromUtc = dayjs().utc();
+  const toUtc = fromUtc.add(days, 'day');
+  return { fromUtc, toUtc };
 }
 
 export function generateDayGrid(
@@ -122,37 +130,59 @@ export function formatSelectedDayLabel(dayKey: string): string {
   return formatDisplayDayKey(dayKey);
 }
 
-export function getUtcRangeForDisplayDate(dayKey: string): { from?: string; to: string } {
-  const { fromUtc, toUtc } = getUtcRangeForDisplayDay(dayKey);
-  const selectedDay = displayDayFromDayKey(dayKey).startOf('day');
-  const today = nowInDisplayTimezone().startOf('day');
-  const isToday = selectedDay.isSame(today);
+export function getUtcRangeForDisplayDate(
+  dayKey: string,
+  days: number = BOOKING_WINDOW_DAYS
+): { from?: string; to?: string } {
+  const dayRange = getUtcRangeForDisplayDay(dayKey);
+  const bookingWindow = getBookingWindowUtcRange(days);
 
-  if (isToday) {
-    return {
-      to: toUtc.subtract(1, 'second').format('YYYY-MM-DDTHH:mm:ss[Z]'),
-    };
+  const effectiveFrom = dayRange.fromUtc.isAfter(bookingWindow.fromUtc)
+    ? dayRange.fromUtc
+    : bookingWindow.fromUtc;
+  const effectiveTo = dayRange.toUtc.isBefore(bookingWindow.toUtc)
+    ? dayRange.toUtc
+    : bookingWindow.toUtc;
+
+  if (!effectiveTo.isAfter(effectiveFrom)) {
+    return {};
   }
 
   return {
-    from: fromUtc.format('YYYY-MM-DDTHH:mm:ss[Z]'),
-    to: toUtc.subtract(1, 'second').format('YYYY-MM-DDTHH:mm:ss[Z]'),
+    from: effectiveFrom.format('YYYY-MM-DDTHH:mm:ss[Z]'),
+    to: effectiveTo.format('YYYY-MM-DDTHH:mm:ss[Z]'),
   };
 }
 
-export function getBookingWindowRange(days: number = 14): { from: string; to: string } {
-  const now = dayjs().utc();
+export function getBookingWindowRange(
+  days: number = BOOKING_WINDOW_DAYS
+): { from: string; to: string } {
+  const { fromUtc, toUtc } = getBookingWindowUtcRange(days);
   return {
-    from: now.format('YYYY-MM-DDTHH:mm:ss[Z]'),
-    to: now.add(days, 'day').format('YYYY-MM-DDTHH:mm:ss[Z]'),
+    from: fromUtc.format('YYYY-MM-DDTHH:mm:ss[Z]'),
+    to: toUtc.format('YYYY-MM-DDTHH:mm:ss[Z]'),
   };
 }
 
 export function hasAvailableSlots(
   dayKey: string,
-  workEndHour: number = WORK_END_HOUR
+  workEndHour: number = WORK_END_HOUR,
+  days: number = BOOKING_WINDOW_DAYS
 ): boolean {
-  const { fromUtc, toUtc } = getUtcRangeForDisplayDay(dayKey);
+  const dayRange = getUtcRangeForDisplayDay(dayKey);
+  const bookingWindow = getBookingWindowUtcRange(days);
+
+  const fromUtc = dayRange.fromUtc.isAfter(bookingWindow.fromUtc)
+    ? dayRange.fromUtc
+    : bookingWindow.fromUtc;
+  const toUtc = dayRange.toUtc.isBefore(bookingWindow.toUtc)
+    ? dayRange.toUtc
+    : bookingWindow.toUtc;
+
+  if (!toUtc.isAfter(fromUtc)) {
+    return false;
+  }
+
   const hostTimezone = getHostTimezone();
 
   const hostRangeStart = fromUtc.tz(hostTimezone).startOf('day');
@@ -181,12 +211,17 @@ export function hasAvailableSlots(
   return false;
 }
 
-export function isWithinBookingWindow(dayKey: string, days: number = 14): boolean {
-  const now = nowInDisplayTimezone().startOf('day');
-  const target = displayDayFromDayKey(dayKey).startOf('day');
-  const maxDate = now.add(days, 'day');
+export function isWithinBookingWindow(
+  dayKey: string,
+  days: number = BOOKING_WINDOW_DAYS
+): boolean {
+  const dayRange = getUtcRangeForDisplayDay(dayKey);
+  const bookingWindow = getBookingWindowUtcRange(days);
 
-  return !target.isBefore(now) && !target.isAfter(maxDate);
+  return (
+    dayRange.toUtc.isAfter(bookingWindow.fromUtc) &&
+    dayRange.fromUtc.isBefore(bookingWindow.toUtc)
+  );
 }
 
 export function formatSlotRange(startUtc: string, endUtc: string): string {

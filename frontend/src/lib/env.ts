@@ -25,4 +25,7 @@ export const WORK_END_HOUR = parseInt(
 );
 
 // Booking window in days
-export const BOOKING_WINDOW_DAYS = 14;
+export const BOOKING_WINDOW_DAYS = parseInt(
+  import.meta.env.VITE_BOOKING_WINDOW_DAYS || '14',
+  10
+);

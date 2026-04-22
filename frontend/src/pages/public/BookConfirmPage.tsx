@@ -97,7 +97,9 @@ export function BookConfirmPage() {
         if (validationErrors && typeof validationErrors === 'object') {
           for (const [field, messages] of Object.entries(validationErrors)) {
             if (Array.isArray(messages) && messages.length > 0 && typeof messages[0] === 'string') {
-              errors[field.toLowerCase()] = messages[0];
+              if (field === 'guestName' || field === 'guestEmail' || field === 'notes') {
+                errors[field] = messages[0];
+              }
             }
           }
         }

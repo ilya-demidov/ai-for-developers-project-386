@@ -14,8 +14,10 @@ import {
   Box,
 } from '@mantine/core';
 import { usePublicEventType, useSlots } from '../../api/hooks';
+import { getProblemDetails } from '../../api/client';
 import { HostBadge } from '../../components/HostBadge';
 import { MonthCalendar } from '../../components/MonthCalendar';
+import { ProblemAlert } from '../../components/ProblemAlert';
 import { SlotStatusList } from '../../components/SlotStatusList';
 import {
   formatSelectedDayLabel,
@@ -41,15 +43,20 @@ export function BookSlotPage() {
     return getUtcRangeForDisplayDate(selectedDayKey);
   }, [selectedDayKey]);
 
-  const { data: freeSlots, isLoading: isLoadingSlots } = useSlots(id || '', from, to, {
+  const {
+    data: freeSlots,
+    isLoading: isLoadingSlots,
+    error: slotsError,
+  } = useSlots(id || '', from, to, {
     enabled: !!id && !!selectedDayKey,
   });
 
   const slotsWithStatus: SlotWithStatus[] = useMemo(() => {
     if (!selectedDayKey || !eventType) return [];
+    if (slotsError) return [];
     const grid = generateDayGrid(selectedDayKey, eventType.durationMinutes);
     return mergeWithFreeSlots(grid, freeSlots || []);
-  }, [selectedDayKey, eventType, freeSlots]);
+  }, [selectedDayKey, eventType, freeSlots, slotsError]);
 
   const handleSelectDayKey = (dayKey: string) => {
     setSelectedDayKey(dayKey);
@@ -94,6 +101,13 @@ export function BookSlotPage() {
         <Title order={2}>
           {eventType.name} {eventType.durationMinutes} минут
         </Title>
+
+        {slotsError && (
+          <ProblemAlert
+            problem={getProblemDetails(slotsError)}
+            title="Не удалось загрузить слоты"
+          />
+        )}
 
         <Grid gap={{ base: 16, md: 24 }}>
           <Grid.Col span={{ base: 12, md: 3 }}>

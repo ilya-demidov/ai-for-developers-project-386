@@ -14,7 +14,7 @@ Frontend: http://localhost:5173, API: http://localhost:8081
 
 ### With Prism mock (instead of real backend)
 ```bash
-docker compose --profile mock up --build
+VITE_API_PROXY_TARGET=http://mock:8080 docker compose --profile mock up --build
 ```
 Frontend: http://localhost:5173, Mock: http://localhost:8080
 
@@ -95,6 +95,7 @@ All dates are stored and transmitted in UTC. Host timezone (Europe/Moscow by def
 - `VITE_API_PROXY_TARGET` — Vite proxy target (local dev only, default `http://localhost:8080`)
 - `VITE_HOST_NAME`, `VITE_HOST_ROLE`, `VITE_HOST_TIMEZONE` — host identity config
 - `VITE_WORK_START_HOUR`, `VITE_WORK_END_HOUR` — work hours for slot grid (integers)
+- `VITE_BOOKING_WINDOW_DAYS` — booking window in days for frontend date/range filtering (should match backend)
 
 `backend/appsettings.json`:
 - `WorkHours:StartHour`, `WorkHours:EndHour` — work hours in host timezone (default 9, 18)

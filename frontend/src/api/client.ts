@@ -15,6 +15,14 @@ export class ApiError extends Error {
   }
 }
 
+export function getProblemDetails(error: unknown): ProblemDetails | undefined {
+  if (error instanceof ApiError) {
+    return error.details;
+  }
+
+  return undefined;
+}
+
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     let details: ProblemDetails | undefined;

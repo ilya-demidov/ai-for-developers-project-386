@@ -39,8 +39,9 @@ export function MonthCalendar({
   };
 
   const days = useMemo(() => {
-    const startOfMonth = currentMonth.startOf('month');
-    const endOfMonth = currentMonth.endOf('month');
+    const month = currentMonth.locale('ru');
+    const startOfMonth = month.startOf('month');
+    const endOfMonth = month.endOf('month');
     const startOfFirstWeek = startOfMonth.startOf('week');
     const endOfLastWeek = endOfMonth.endOf('week');
 

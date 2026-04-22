@@ -25,7 +25,7 @@
 - Prism - mock сервер для разработки
 
 ### Frontend
-- React 18 + TypeScript
+- React 19 + TypeScript
 - Vite - сборка и dev сервер
 - Mantine UI - компоненты интерфейса
 - React Router - навигация
@@ -34,7 +34,7 @@
 
 ### Инфраструктура
 - Docker + Docker Compose
-- SQLite (будет добавлена при разработке .NET backend)
+- .NET 8 Minimal API + in-memory storage
 
 ## Структура проекта
 
@@ -86,7 +86,19 @@ docker compose up --build
 
 3. Откройте приложение:
    - Frontend: http://localhost:5173
-   - Prism API: http://localhost:8080
+   - API: http://localhost:8081
+
+### Запуск с Prism mock
+
+Чтобы фронтенд ходил в Prism mock вместо backend API:
+
+```bash
+VITE_API_PROXY_TARGET=http://mock:8080 docker compose --profile mock up --build
+```
+
+Откройте:
+- Frontend: http://localhost:5173
+- Mock API: http://localhost:8080
 
 ### Локальная разработка (без Docker)
 
@@ -159,6 +171,9 @@ VITE_DISPLAY_TIMEZONE=local
 # Work hours (used for slot grid generation)
 VITE_WORK_START_HOUR=9
 VITE_WORK_END_HOUR=18
+
+# Booking window in days (keep in sync with backend BookingWindowOptions:Days)
+VITE_BOOKING_WINDOW_DAYS=14
 ```
 
 ## Лицензия

@@ -8,6 +8,7 @@ public interface IBookingStore
     List<Booking> GetAll();
     List<Booking> GetInRange(DateTime? from, DateTime? to);
     Booking Create(Booking booking);
+    bool HasOverlap(DateTime startUtc, DateTime endUtc);
 }
 
 public class InMemoryBookingStore : IBookingStore
