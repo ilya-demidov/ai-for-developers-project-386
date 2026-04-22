@@ -4,6 +4,7 @@ import { HomePage } from './pages/HomePage';
 import { EventTypesListPage } from './pages/public/EventTypesListPage';
 import { BookSlotPage } from './pages/public/BookSlotPage';
 import { BookConfirmPage } from './pages/public/BookConfirmPage';
+import { BookingSuccessPage } from './pages/public/BookingSuccessPage';
 import { AdminBookingsPage } from './pages/admin/AdminBookingsPage';
 import { AdminEventTypesPage } from './pages/admin/AdminEventTypesPage';
 
@@ -26,6 +27,10 @@ export const router = createBrowserRouter([
       {
         path: '/book/:id/confirm',
         element: <BookConfirmPage />,
+      },
+      {
+        path: '/book/success',
+        element: <BookingSuccessPage />,
       },
       {
         path: '/admin',

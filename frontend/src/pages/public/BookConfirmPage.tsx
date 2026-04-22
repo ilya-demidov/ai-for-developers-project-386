@@ -18,7 +18,7 @@ import {
 import { useForm } from '@mantine/form';
 import { zodResolver } from 'mantine-form-zod-resolver';
 import { notifications } from '@mantine/notifications';
-import { IconArrowLeft, IconCheck } from '@tabler/icons-react';
+import { IconArrowLeft } from '@tabler/icons-react';
 import { z } from 'zod';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -63,7 +63,7 @@ export function BookConfirmPage() {
     setApiError(null);
 
     try {
-      await createBooking.mutateAsync({
+      const booking = await createBooking.mutateAsync({
         eventTypeId: id,
         startUtc,
         guestName: values.guestName,
@@ -71,14 +71,7 @@ export function BookConfirmPage() {
         notes: values.notes || undefined,
       });
 
-      notifications.show({
-        title: 'Успешно!',
-        message: 'Ваша встреча забронирована.',
-        color: 'green',
-        icon: <IconCheck size={16} />,
-      });
-
-      navigate('/event-types');
+      navigate('/book/success', { state: { booking } });
     } catch (error) {
       const apiErr = error as ApiError;
       setApiError(apiErr);
