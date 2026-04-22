@@ -3,12 +3,13 @@ import { Paper, Text, Group, ActionIcon, SimpleGrid, Box } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
-import { isWithinBookingWindow, hasAvailableSlots } from '../lib/time';
+import { hasAvailableSlots, isWithinBookingWindow } from '../lib/time';
+import { nowInDisplayTimezone } from '../lib/timezone';
 import classes from './MonthCalendar.module.css';
 
 interface MonthCalendarProps {
-  selectedDate: Date | null;
-  onSelectDate: (date: Date) => void;
+  selectedDayKey: string | null;
+  onSelectDayKey: (dayKey: string) => void;
   eventTypeId: string;
   durationMinutes: number;
 }
@@ -16,14 +17,16 @@ interface MonthCalendarProps {
 const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 
 export function MonthCalendar({
-  selectedDate,
-  onSelectDate,
+  selectedDayKey,
+  onSelectDayKey,
 }: MonthCalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState(dayjs());
+  const [currentMonth, setCurrentMonth] = useState(
+    nowInDisplayTimezone().startOf('month')
+  );
 
-  const handleDateSelect = (date: Date) => {
-    if (isWithinBookingWindow(date) && hasAvailableSlots(date)) {
-      onSelectDate(date);
+  const handleDateSelect = (dayKey: string) => {
+    if (isWithinBookingWindow(dayKey) && hasAvailableSlots(dayKey)) {
+      onSelectDayKey(dayKey);
     }
   };
 
@@ -43,27 +46,31 @@ export function MonthCalendar({
 
     const daysArray: {
       date: dayjs.Dayjs;
+      dayKey: string;
       isCurrentMonth: boolean;
       isToday: boolean;
       isSelected: boolean;
       isDisabled: boolean;
     }[] = [];
 
+    const todayDayKey = nowInDisplayTimezone().format('YYYY-MM-DD');
+
     let current = startOfFirstWeek;
     while (current.isBefore(endOfLastWeek) || current.isSame(endOfLastWeek, 'day')) {
-      const date = current.toDate();
+      const dayKey = current.format('YYYY-MM-DD');
       daysArray.push({
         date: current,
+        dayKey,
         isCurrentMonth: current.month() === currentMonth.month(),
-        isToday: current.isSame(dayjs(), 'day'),
-        isSelected: selectedDate ? current.isSame(selectedDate, 'day') : false,
-        isDisabled: !isWithinBookingWindow(date) || !hasAvailableSlots(date),
+        isToday: dayKey === todayDayKey,
+        isSelected: selectedDayKey === dayKey,
+        isDisabled: !isWithinBookingWindow(dayKey) || !hasAvailableSlots(dayKey),
       });
       current = current.add(1, 'day');
     }
 
     return daysArray;
-  }, [currentMonth, selectedDate]);
+  }, [currentMonth, selectedDayKey]);
 
   return (
     <Paper
@@ -107,7 +114,6 @@ export function MonthCalendar({
         {currentMonth.locale('ru').format('MMMM YYYY г.')}
       </Text>
 
-      {/* Weekday headers */}
       <SimpleGrid cols={7} mb={8}>
         {WEEKDAYS.map((day) => (
           <Text key={day} size="xs" c="dimmed" ta="center" fw={500}>
@@ -116,35 +122,35 @@ export function MonthCalendar({
         ))}
       </SimpleGrid>
 
-      {/* Calendar days */}
       <Box style={{ flex: 1 }}>
         <SimpleGrid cols={7} spacing={4}>
-        {days.map((day, index) => (
-          <Box
-            key={index}
-            className={classes.calendarDay}
-            data-selected={day.isSelected || undefined}
-            data-disabled={day.isDisabled || undefined}
-            data-current-month={day.isCurrentMonth || undefined}
-            onClick={() => handleDateSelect(day.date.toDate())}
-          >
-            <Text
-              size="sm"
-              fw={day.isSelected ? 600 : 400}
-              ta="center"
-              c={
-                day.isSelected
-                  ? 'white'
-                  : day.isDisabled || !day.isCurrentMonth
-                    ? 'gray.4'
-                    : 'dark'
-              }
+          {days.map((day, index) => (
+            <Box
+              key={index}
+              className={classes.calendarDay}
+              data-selected={day.isSelected || undefined}
+              data-disabled={day.isDisabled || undefined}
+              data-current-month={day.isCurrentMonth || undefined}
+              data-today={day.isToday || undefined}
+              onClick={() => handleDateSelect(day.dayKey)}
             >
-              {day.date.format('D')}
-            </Text>
-          </Box>
-        ))}
-      </SimpleGrid>
+              <Text
+                size="sm"
+                fw={day.isSelected ? 600 : 400}
+                ta="center"
+                c={
+                  day.isSelected
+                    ? 'white'
+                    : day.isDisabled || !day.isCurrentMonth
+                      ? 'gray.4'
+                      : 'dark'
+                }
+              >
+                {day.date.format('D')}
+              </Text>
+            </Box>
+          ))}
+        </SimpleGrid>
       </Box>
     </Paper>
   );

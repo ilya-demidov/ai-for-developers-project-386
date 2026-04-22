@@ -18,42 +18,41 @@ import { HostBadge } from '../../components/HostBadge';
 import { MonthCalendar } from '../../components/MonthCalendar';
 import { SlotStatusList } from '../../components/SlotStatusList';
 import {
+  formatSelectedDayLabel,
   generateDayGrid,
+  getUtcRangeForDisplayDate,
   mergeWithFreeSlots,
-  getUtcRangeForLocalDate,
-  toLocalDateLabel,
   toLocalTimeLabel,
 } from '../../lib/time';
 import type { SlotWithStatus } from '../../lib/time';
 
-// Фиксированная высота для календаря на десктопе
 const CALENDAR_HEIGHT = 520;
 
 export function BookSlotPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
   const { data: eventType, isLoading: isLoadingEventType } = usePublicEventType(id || '');
 
   const { from, to } = useMemo(() => {
-    if (!selectedDate) return { from: undefined, to: undefined };
-    return getUtcRangeForLocalDate(selectedDate);
-  }, [selectedDate]);
+    if (!selectedDayKey) return { from: undefined, to: undefined };
+    return getUtcRangeForDisplayDate(selectedDayKey);
+  }, [selectedDayKey]);
 
   const { data: freeSlots, isLoading: isLoadingSlots } = useSlots(id || '', from, to, {
-    enabled: !!id && !!selectedDate,
+    enabled: !!id && !!selectedDayKey,
   });
 
   const slotsWithStatus: SlotWithStatus[] = useMemo(() => {
-    if (!selectedDate || !eventType) return [];
-    const grid = generateDayGrid(selectedDate, eventType.durationMinutes);
+    if (!selectedDayKey || !eventType) return [];
+    const grid = generateDayGrid(selectedDayKey, eventType.durationMinutes);
     return mergeWithFreeSlots(grid, freeSlots || []);
-  }, [selectedDate, eventType, freeSlots]);
+  }, [selectedDayKey, eventType, freeSlots]);
 
-  const handleSelectDate = (date: Date) => {
-    setSelectedDate(date);
+  const handleSelectDayKey = (dayKey: string) => {
+    setSelectedDayKey(dayKey);
     setSelectedSlot(null);
   };
 
@@ -97,7 +96,6 @@ export function BookSlotPage() {
         </Title>
 
         <Grid gap={{ base: 16, md: 24 }}>
-          {/* Left Column - Event Info */}
           <Grid.Col span={{ base: 12, md: 3 }}>
             <Card
               withBorder
@@ -137,8 +135,8 @@ export function BookSlotPage() {
                       Выбранная дата
                     </Text>
                     <Text size="sm" fw={500}>
-                      {selectedDate
-                        ? toLocalDateLabel(selectedDate)
+                      {selectedDayKey
+                        ? formatSelectedDayLabel(selectedDayKey)
                         : 'Дата не выбрана'}
                     </Text>
                   </Paper>
@@ -162,19 +160,17 @@ export function BookSlotPage() {
             </Card>
           </Grid.Col>
 
-          {/* Middle Column - Calendar */}
           <Grid.Col span={{ base: 12, md: 5 }}>
             <Box h={{ base: 'auto', md: CALENDAR_HEIGHT }}>
               <MonthCalendar
-                selectedDate={selectedDate}
-                onSelectDate={handleSelectDate}
+                selectedDayKey={selectedDayKey}
+                onSelectDayKey={handleSelectDayKey}
                 eventTypeId={id || ''}
                 durationMinutes={eventType.durationMinutes}
               />
             </Box>
           </Grid.Col>
 
-          {/* Right Column - Slot Status */}
           <Grid.Col span={{ base: 12, md: 4 }}>
             <Box h={{ base: 'auto', md: CALENDAR_HEIGHT }}>
               <SlotStatusList

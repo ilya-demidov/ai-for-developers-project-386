@@ -1,7 +1,15 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { WORK_START_HOUR, WORK_END_HOUR, HOST_TIMEZONE } from './env';
+import { WORK_START_HOUR, WORK_END_HOUR } from './env';
+import {
+  displayDayFromDayKey,
+  formatDisplayDayKey,
+  formatUtcInDisplayDate,
+  formatUtcInDisplayTime,
+  getHostTimezone,
+  nowInDisplayTimezone,
+} from './timezone';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -16,24 +24,15 @@ function toTimestamp(iso: string): number {
   return new Date(iso).getTime();
 }
 
-function dateToHostDay(date: Date): dayjs.Dayjs {
-  const y = date.getFullYear();
-  const m = date.getMonth() + 1;
-  const d = date.getDate();
-  return dayjs.tz(`${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`, HOST_TIMEZONE);
-}
-
-export function generateDayGrid(
-  date: Date,
+function buildHostDaySlots(
+  hostDayStart: dayjs.Dayjs,
   durationMinutes: number,
-  workStartHour: number = WORK_START_HOUR,
-  workEndHour: number = WORK_END_HOUR,
+  workStartHour: number,
+  workEndHour: number
 ): { startUtc: string; endUtc: string }[] {
   const slots: { startUtc: string; endUtc: string }[] = [];
-  const localDayStart = dateToHostDay(date);
-
-  const workStartUtc = localDayStart.add(workStartHour, 'hour').utc();
-  const workEndUtc = localDayStart.add(workEndHour, 'hour').utc();
+  const workStartUtc = hostDayStart.add(workStartHour, 'hour').utc();
+  const workEndUtc = hostDayStart.add(workEndHour, 'hour').utc();
 
   let current = workStartUtc;
   while (current.add(durationMinutes, 'minute').valueOf() <= workEndUtc.valueOf()) {
@@ -48,9 +47,60 @@ export function generateDayGrid(
   return slots;
 }
 
+function getUtcRangeForDisplayDay(dayKey: string): {
+  fromUtc: dayjs.Dayjs;
+  toUtc: dayjs.Dayjs;
+} {
+  const displayStart = displayDayFromDayKey(dayKey).startOf('day');
+  const displayEndExclusive = displayStart.add(1, 'day');
+
+  return {
+    fromUtc: displayStart.utc(),
+    toUtc: displayEndExclusive.utc(),
+  };
+}
+
+export function generateDayGrid(
+  dayKey: string,
+  durationMinutes: number,
+  workStartHour: number = WORK_START_HOUR,
+  workEndHour: number = WORK_END_HOUR
+): { startUtc: string; endUtc: string }[] {
+  const { fromUtc, toUtc } = getUtcRangeForDisplayDay(dayKey);
+  const hostTimezone = getHostTimezone();
+
+  const hostRangeStart = fromUtc.tz(hostTimezone).startOf('day');
+  const hostRangeEnd = toUtc.subtract(1, 'millisecond').tz(hostTimezone).startOf('day');
+
+  const slots: { startUtc: string; endUtc: string }[] = [];
+  let hostDay = hostRangeStart;
+
+  while (hostDay.valueOf() <= hostRangeEnd.valueOf()) {
+    const hostDaySlots = buildHostDaySlots(
+      hostDay,
+      durationMinutes,
+      workStartHour,
+      workEndHour
+    );
+
+    for (const slot of hostDaySlots) {
+      const slotStartUtc = dayjs.utc(slot.startUtc);
+      const slotEndUtc = dayjs.utc(slot.endUtc);
+
+      if (slotStartUtc.valueOf() >= fromUtc.valueOf() && slotEndUtc.valueOf() <= toUtc.valueOf()) {
+        slots.push(slot);
+      }
+    }
+
+    hostDay = hostDay.add(1, 'day');
+  }
+
+  return slots;
+}
+
 export function mergeWithFreeSlots(
   grid: { startUtc: string; endUtc: string }[],
-  freeSlots: { startUtc: string; endUtc: string }[],
+  freeSlots: { startUtc: string; endUtc: string }[]
 ): SlotWithStatus[] {
   const freeTimestamps = new Set(freeSlots.map((s) => toTimestamp(s.startUtc)));
 
@@ -61,28 +111,32 @@ export function mergeWithFreeSlots(
 }
 
 export function toLocalTimeLabel(utcIso: string): string {
-  return dayjs.utc(utcIso).tz(HOST_TIMEZONE).format('HH:mm');
+  return formatUtcInDisplayTime(utcIso);
 }
 
-export function toLocalDateLabel(utcIsoOrDate: string | Date): string {
-  if (typeof utcIsoOrDate === 'string') {
-    return dayjs.utc(utcIsoOrDate).tz(HOST_TIMEZONE).format('dddd, D MMMM');
+export function toLocalDateLabel(utcIso: string): string {
+  return formatUtcInDisplayDate(utcIso);
+}
+
+export function formatSelectedDayLabel(dayKey: string): string {
+  return formatDisplayDayKey(dayKey);
+}
+
+export function getUtcRangeForDisplayDate(dayKey: string): { from?: string; to: string } {
+  const { fromUtc, toUtc } = getUtcRangeForDisplayDay(dayKey);
+  const selectedDay = displayDayFromDayKey(dayKey).startOf('day');
+  const today = nowInDisplayTimezone().startOf('day');
+  const isToday = selectedDay.isSame(today);
+
+  if (isToday) {
+    return {
+      to: toUtc.subtract(1, 'second').format('YYYY-MM-DDTHH:mm:ss[Z]'),
+    };
   }
-  return dateToHostDay(utcIsoOrDate).format('dddd, D MMMM');
-}
-
-export function getUtcRangeForLocalDate(date: Date): { from: string; to: string } {
-  const localDay = dateToHostDay(date);
-  const startOfDay = localDay.startOf('day');
-  const endOfDay = localDay.endOf('day');
-
-  const now = dayjs().utc();
-  const fromUtc = startOfDay.utc();
-  const from = now.isAfter(fromUtc) ? now : fromUtc;
 
   return {
-    from: from.format('YYYY-MM-DDTHH:mm:ss[Z]'),
-    to: endOfDay.utc().format('YYYY-MM-DDTHH:mm:ss[Z]'),
+    from: fromUtc.format('YYYY-MM-DDTHH:mm:ss[Z]'),
+    to: toUtc.subtract(1, 'second').format('YYYY-MM-DDTHH:mm:ss[Z]'),
   };
 }
 
@@ -95,18 +149,41 @@ export function getBookingWindowRange(days: number = 14): { from: string; to: st
 }
 
 export function hasAvailableSlots(
-  date: Date,
-  workEndHour: number = WORK_END_HOUR,
+  dayKey: string,
+  workEndHour: number = WORK_END_HOUR
 ): boolean {
-  const localDay = dateToHostDay(date);
-  const workEndUtc = localDay.add(workEndHour, 'hour').utc();
-  const now = dayjs().utc();
-  return now.isBefore(workEndUtc);
+  const { fromUtc, toUtc } = getUtcRangeForDisplayDay(dayKey);
+  const hostTimezone = getHostTimezone();
+
+  const hostRangeStart = fromUtc.tz(hostTimezone).startOf('day');
+  const hostRangeEnd = toUtc.subtract(1, 'millisecond').tz(hostTimezone).startOf('day');
+
+  const nowUtc = dayjs().utc();
+  const effectiveStart = nowUtc.isAfter(fromUtc) ? nowUtc : fromUtc;
+
+  let hostDay = hostRangeStart;
+  while (hostDay.valueOf() <= hostRangeEnd.valueOf()) {
+    const hostDayWorkStartUtc = hostDay.add(WORK_START_HOUR, 'hour').utc();
+    const hostDayWorkEndUtc = hostDay.add(workEndHour, 'hour').utc();
+
+    const windowStart = hostDayWorkStartUtc.isAfter(effectiveStart)
+      ? hostDayWorkStartUtc
+      : effectiveStart;
+    const windowEnd = hostDayWorkEndUtc.isBefore(toUtc) ? hostDayWorkEndUtc : toUtc;
+
+    if (windowEnd.isAfter(windowStart)) {
+      return true;
+    }
+
+    hostDay = hostDay.add(1, 'day');
+  }
+
+  return false;
 }
 
-export function isWithinBookingWindow(date: Date, days: number = 14): boolean {
-  const now = dayjs().tz(HOST_TIMEZONE).startOf('day');
-  const target = dateToHostDay(date).startOf('day');
+export function isWithinBookingWindow(dayKey: string, days: number = 14): boolean {
+  const now = nowInDisplayTimezone().startOf('day');
+  const target = displayDayFromDayKey(dayKey).startOf('day');
   const maxDate = now.add(days, 'day');
 
   return !target.isBefore(now) && !target.isAfter(maxDate);

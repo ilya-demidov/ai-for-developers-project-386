@@ -33,14 +33,28 @@ public class SlotService
         var now = DateTime.UtcNow;
         var windowStart = now;
         var windowEnd = now.AddDays(_bookingWindow.Days);
+        var startTolerance = TimeSpan.FromSeconds(2);
 
         var effectiveFrom = from ?? windowStart;
         var effectiveTo = to ?? windowEnd;
 
+        if (effectiveFrom < windowStart)
+        {
+            var lag = windowStart - effectiveFrom;
+            if (lag <= startTolerance)
+            {
+                effectiveFrom = windowStart;
+            }
+            else
+            {
+                throw new ArgumentException("Requested range is outside the 14-day booking window.");
+            }
+        }
+
         if (effectiveFrom >= effectiveTo)
             throw new ArgumentException("Parameter 'from' must be earlier than 'to'.");
 
-        if (effectiveFrom < windowStart || effectiveTo > windowEnd)
+        if (effectiveTo > windowEnd)
             throw new ArgumentException("Requested range is outside the 14-day booking window.");
 
         var candidates = GenerateCandidates(eventType, effectiveFrom, effectiveTo, now);

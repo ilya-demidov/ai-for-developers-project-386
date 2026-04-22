@@ -89,15 +89,22 @@ export function BookConfirmPage() {
           message: 'Этот слот уже занят. Пожалуйста, выберите другое время.',
           color: 'red',
         });
-      } else if (apiErr.status === 400 && apiErr.details?.errors) {
-        // Map API validation errors to form fields
+      } else if (apiErr.status === 400) {
+        // Map API validation errors to form fields, but tolerate malformed payloads.
+        const validationErrors = apiErr.details?.errors;
         const errors: Record<string, string> = {};
-        Object.entries(apiErr.details.errors).forEach(([field, messages]) => {
-          if (messages.length > 0) {
-            errors[field.toLowerCase()] = messages[0];
+
+        if (validationErrors && typeof validationErrors === 'object') {
+          for (const [field, messages] of Object.entries(validationErrors)) {
+            if (Array.isArray(messages) && messages.length > 0 && typeof messages[0] === 'string') {
+              errors[field.toLowerCase()] = messages[0];
+            }
           }
-        });
-        form.setErrors(errors);
+        }
+
+        if (Object.keys(errors).length > 0) {
+          form.setErrors(errors);
+        }
       }
     }
   };

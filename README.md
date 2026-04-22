@@ -150,6 +150,11 @@ VITE_API_BASE_URL=/api
 # Host configuration
 VITE_HOST_NAME=Tota
 VITE_HOST_ROLE=Host
+VITE_HOST_TIMEZONE=Europe/Moscow
+
+# Timezone for date/time display and day boundaries on frontend
+# local | host | IANA timezone | +3
+VITE_DISPLAY_TIMEZONE=local
 
 # Work hours (used for slot grid generation)
 VITE_WORK_START_HOUR=9

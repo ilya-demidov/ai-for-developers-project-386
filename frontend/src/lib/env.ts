@@ -7,6 +7,10 @@ export const HOST_NAME = import.meta.env.VITE_HOST_NAME || 'Tota';
 export const HOST_ROLE = import.meta.env.VITE_HOST_ROLE || 'Host';
 export const HOST_TIMEZONE = import.meta.env.VITE_HOST_TIMEZONE || 'Europe/Moscow';
 
+// Controls which timezone is used for displaying dates and calendar day logic.
+// Supported values: local | host | IANA timezone (e.g. Europe/Moscow) | +3 / +03:00 / UTC+3.
+export const DISPLAY_TIMEZONE_SETTING = import.meta.env.VITE_DISPLAY_TIMEZONE || 'local';
+
 // API configuration
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
