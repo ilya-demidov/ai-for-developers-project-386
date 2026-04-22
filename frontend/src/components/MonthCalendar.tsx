@@ -3,15 +3,13 @@ import { Paper, Text, Group, ActionIcon, SimpleGrid, Box } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
-import { hasAvailableSlots, isWithinBookingWindow } from '../lib/time';
 import { nowInDisplayTimezone } from '../lib/timezone';
 import classes from './MonthCalendar.module.css';
 
 interface MonthCalendarProps {
   selectedDayKey: string | null;
   onSelectDayKey: (dayKey: string) => void;
-  eventTypeId: string;
-  durationMinutes: number;
+  availableDayKeys: Set<string>;
 }
 
 const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -19,13 +17,14 @@ const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 export function MonthCalendar({
   selectedDayKey,
   onSelectDayKey,
+  availableDayKeys,
 }: MonthCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(
     nowInDisplayTimezone().startOf('month')
   );
 
   const handleDateSelect = (dayKey: string) => {
-    if (isWithinBookingWindow(dayKey) && hasAvailableSlots(dayKey)) {
+    if (availableDayKeys.has(dayKey)) {
       onSelectDayKey(dayKey);
     }
   };
@@ -65,13 +64,13 @@ export function MonthCalendar({
         isCurrentMonth: current.month() === currentMonth.month(),
         isToday: dayKey === todayDayKey,
         isSelected: selectedDayKey === dayKey,
-        isDisabled: !isWithinBookingWindow(dayKey) || !hasAvailableSlots(dayKey),
+        isDisabled: !availableDayKeys.has(dayKey),
       });
       current = current.add(1, 'day');
     }
 
     return daysArray;
-  }, [currentMonth, selectedDayKey]);
+  }, [availableDayKeys, currentMonth, selectedDayKey]);
 
   return (
     <Paper

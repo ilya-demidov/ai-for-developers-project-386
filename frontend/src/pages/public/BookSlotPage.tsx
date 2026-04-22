@@ -27,6 +27,7 @@ import {
   toLocalTimeLabel,
 } from '../../lib/time';
 import type { SlotWithStatus } from '../../lib/time';
+import { toDisplayDayKey } from '../../lib/timezone';
 
 const CALENDAR_HEIGHT = 520;
 
@@ -37,26 +38,46 @@ export function BookSlotPage() {
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
   const { data: eventType, isLoading: isLoadingEventType } = usePublicEventType(id || '');
-
-  const { from, to } = useMemo(() => {
-    if (!selectedDayKey) return { from: undefined, to: undefined };
-    return getUtcRangeForDisplayDate(selectedDayKey);
-  }, [selectedDayKey]);
-
   const {
-    data: freeSlots,
-    isLoading: isLoadingSlots,
-    error: slotsError,
-  } = useSlots(id || '', from, to, {
-    enabled: !!id && !!selectedDayKey,
+    data: windowFreeSlots,
+    error: windowSlotsError,
+  } = useSlots(id || '', undefined, undefined, {
+    enabled: !!id,
   });
 
+  const availableDayKeys = useMemo(() => {
+    const dayKeys = new Set<string>();
+    for (const slot of windowFreeSlots ?? []) {
+      dayKeys.add(toDisplayDayKey(slot.startUtc));
+    }
+    return dayKeys;
+  }, [windowFreeSlots]);
+
+  const activeSelectedDayKey =
+    selectedDayKey && availableDayKeys.has(selectedDayKey) ? selectedDayKey : null;
+  const activeSelectedSlot = activeSelectedDayKey ? selectedSlot : null;
+
+  const { from, to } = useMemo(() => {
+    if (!activeSelectedDayKey) return { from: undefined, to: undefined };
+    return getUtcRangeForDisplayDate(activeSelectedDayKey);
+  }, [activeSelectedDayKey]);
+
+  const {
+    data: dayFreeSlots,
+    isLoading: isLoadingSlots,
+    error: daySlotsError,
+  } = useSlots(id || '', from, to, {
+    enabled: !!id && !!activeSelectedDayKey,
+  });
+
+  const slotsError = daySlotsError ?? windowSlotsError;
+
   const slotsWithStatus: SlotWithStatus[] = useMemo(() => {
-    if (!selectedDayKey || !eventType) return [];
+    if (!activeSelectedDayKey || !eventType) return [];
     if (slotsError) return [];
-    const grid = generateDayGrid(selectedDayKey, eventType.durationMinutes);
-    return mergeWithFreeSlots(grid, freeSlots || []);
-  }, [selectedDayKey, eventType, freeSlots, slotsError]);
+    const grid = generateDayGrid(activeSelectedDayKey, eventType.durationMinutes);
+    return mergeWithFreeSlots(grid, dayFreeSlots || []);
+  }, [activeSelectedDayKey, eventType, dayFreeSlots, slotsError]);
 
   const handleSelectDayKey = (dayKey: string) => {
     setSelectedDayKey(dayKey);
@@ -72,8 +93,8 @@ export function BookSlotPage() {
   };
 
   const handleContinue = () => {
-    if (selectedSlot && id) {
-      navigate(`/book/${id}/confirm?start=${encodeURIComponent(selectedSlot)}`);
+    if (activeSelectedSlot && id) {
+      navigate(`/book/${id}/confirm?start=${encodeURIComponent(activeSelectedSlot)}`);
     }
   };
 
@@ -149,8 +170,8 @@ export function BookSlotPage() {
                       Выбранная дата
                     </Text>
                     <Text size="sm" fw={500}>
-                      {selectedDayKey
-                        ? formatSelectedDayLabel(selectedDayKey)
+                      {activeSelectedDayKey
+                        ? formatSelectedDayLabel(activeSelectedDayKey)
                         : 'Дата не выбрана'}
                     </Text>
                   </Paper>
@@ -164,8 +185,8 @@ export function BookSlotPage() {
                       Выбранное время
                     </Text>
                     <Text size="sm" fw={500}>
-                      {selectedSlot
-                        ? toLocalTimeLabel(selectedSlot)
+                      {activeSelectedSlot
+                        ? toLocalTimeLabel(activeSelectedSlot)
                         : 'Время не выбрано'}
                     </Text>
                   </Paper>
@@ -177,10 +198,9 @@ export function BookSlotPage() {
           <Grid.Col span={{ base: 12, md: 5 }}>
             <Box h={{ base: 'auto', md: CALENDAR_HEIGHT }}>
               <MonthCalendar
-                selectedDayKey={selectedDayKey}
+                selectedDayKey={activeSelectedDayKey}
                 onSelectDayKey={handleSelectDayKey}
-                eventTypeId={id || ''}
-                durationMinutes={eventType.durationMinutes}
+                availableDayKeys={availableDayKeys}
               />
             </Box>
           </Grid.Col>
@@ -189,7 +209,7 @@ export function BookSlotPage() {
             <Box h={{ base: 'auto', md: CALENDAR_HEIGHT }}>
               <SlotStatusList
                 slots={slotsWithStatus}
-                selectedSlot={selectedSlot}
+                selectedSlot={activeSelectedSlot}
                 onSelectSlot={handleSelectSlot}
                 onBack={handleBack}
                 onContinue={handleContinue}

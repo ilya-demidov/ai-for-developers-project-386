@@ -30,7 +30,7 @@ public class BookingService
         var now = DateTime.UtcNow;
         var startUtc = DateTime.SpecifyKind(dto.StartUtc, DateTimeKind.Utc);
         var endUtc = startUtc.AddMinutes(eventType.DurationMinutes);
-        var windowEnd = now.AddDays(_bookingWindow.Days);
+        var windowEnd = _slotService.GetEffectiveBookingWindowEndUtc(eventType, now);
 
         if (startUtc < now)
             throw new ArgumentException("Cannot book a slot in the past.");

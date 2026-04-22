@@ -64,7 +64,8 @@ function getBookingWindowUtcRange(days: number = BOOKING_WINDOW_DAYS): {
   toUtc: dayjs.Dayjs;
 } {
   const fromUtc = dayjs().utc();
-  const toUtc = fromUtc.add(days, 'day');
+  const hostDayStart = fromUtc.tz(getHostTimezone()).startOf('day');
+  const toUtc = hostDayStart.add(days, 'day').utc();
   return { fromUtc, toUtc };
 }
 
@@ -131,26 +132,13 @@ export function formatSelectedDayLabel(dayKey: string): string {
 }
 
 export function getUtcRangeForDisplayDate(
-  dayKey: string,
-  days: number = BOOKING_WINDOW_DAYS
-): { from?: string; to?: string } {
+  dayKey: string
+): { from: string; to: string } {
   const dayRange = getUtcRangeForDisplayDay(dayKey);
-  const bookingWindow = getBookingWindowUtcRange(days);
-
-  const effectiveFrom = dayRange.fromUtc.isAfter(bookingWindow.fromUtc)
-    ? dayRange.fromUtc
-    : bookingWindow.fromUtc;
-  const effectiveTo = dayRange.toUtc.isBefore(bookingWindow.toUtc)
-    ? dayRange.toUtc
-    : bookingWindow.toUtc;
-
-  if (!effectiveTo.isAfter(effectiveFrom)) {
-    return {};
-  }
 
   return {
-    from: effectiveFrom.format('YYYY-MM-DDTHH:mm:ss[Z]'),
-    to: effectiveTo.format('YYYY-MM-DDTHH:mm:ss[Z]'),
+    from: dayRange.fromUtc.format('YYYY-MM-DDTHH:mm:ss[Z]'),
+    to: dayRange.toUtc.format('YYYY-MM-DDTHH:mm:ss[Z]'),
   };
 }
 

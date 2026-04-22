@@ -32,7 +32,8 @@ public class SlotService
 
         var now = DateTime.UtcNow;
         var windowStart = now;
-        var windowEnd = now.AddDays(_bookingWindow.Days);
+        var bookings = _bookingStore.GetAll();
+        var windowEnd = GetEffectiveBookingWindowEndUtc(eventType, now, bookings);
         var startTolerance = TimeSpan.FromSeconds(2);
 
         var effectiveFrom = from ?? windowStart;
@@ -59,12 +60,53 @@ public class SlotService
 
         var candidates = GenerateCandidates(eventType, effectiveFrom, effectiveTo, now);
 
-        var bookings = _bookingStore.GetAll();
         var freeSlots = candidates
             .Where(slot => !bookings.Any(b => b.StartUtc < slot.EndUtc && b.EndUtc > slot.StartUtc))
             .ToList();
 
         return freeSlots;
+    }
+
+    public DateTime GetEffectiveBookingWindowEndUtc(EventType eventType, DateTime nowUtc)
+    {
+        var bookings = _bookingStore.GetAll();
+        return GetEffectiveBookingWindowEndUtc(eventType, nowUtc, bookings);
+    }
+
+    private DateTime GetEffectiveBookingWindowEndUtc(
+        EventType eventType,
+        DateTime nowUtc,
+        List<Booking> bookings)
+    {
+        var hostNow = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, _hostTimeZone);
+        var hostTodayStart = hostNow.Date;
+        var hostTomorrowStart = hostTodayStart.AddDays(1);
+
+        var baseWindowEndLocal = hostTodayStart.AddDays(_bookingWindow.Days);
+        var baseWindowEndUtc = TimeZoneInfo.ConvertTimeToUtc(baseWindowEndLocal, _hostTimeZone);
+
+        var todayEndUtc = TimeZoneInfo.ConvertTimeToUtc(hostTomorrowStart, _hostTimeZone);
+        var hasFreeSlotsToday = HasFreeSlotsInRange(eventType, nowUtc, todayEndUtc, nowUtc, bookings);
+
+        if (hasFreeSlotsToday)
+            return baseWindowEndUtc;
+
+        var extendedWindowEndLocal = baseWindowEndLocal.AddDays(1);
+        return TimeZoneInfo.ConvertTimeToUtc(extendedWindowEndLocal, _hostTimeZone);
+    }
+
+    private bool HasFreeSlotsInRange(
+        EventType eventType,
+        DateTime from,
+        DateTime to,
+        DateTime nowUtc,
+        List<Booking> bookings)
+    {
+        if (to <= from)
+            return false;
+
+        var candidates = GenerateCandidates(eventType, from, to, nowUtc);
+        return candidates.Any(slot => !bookings.Any(b => b.StartUtc < slot.EndUtc && b.EndUtc > slot.StartUtc));
     }
 
     private List<SlotResponseDto> GenerateCandidates(EventType eventType, DateTime from, DateTime to, DateTime now)

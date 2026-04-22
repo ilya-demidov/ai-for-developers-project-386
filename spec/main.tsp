@@ -190,7 +190,7 @@ namespace Public {
     @route("/event-types/{id}")
     op getEventType(@path id: string): EventType | { @statusCode status: 404, @body body: ProblemDetails };
 
-    @doc("Get free booking slots for a given event type within the configured booking window. Slots are computed based on the event type duration, owner working hours (server config), and exclude any slots that overlap with existing bookings of any event type. All returned slots have duration equal to EventType.durationMinutes. Slots are sorted by startUtc ascending. If from or to are not provided, defaults to [now, now + bookingWindowDays). Returns 400 if from >= to or values are outside the booking window. Returns 404 if eventTypeId does not exist.")
+    @doc("Get free booking slots for a given event type within the configured booking window. Slots are computed based on the event type duration, owner working hours (server config), and exclude any slots that overlap with existing bookings of any event type. All returned slots have duration equal to EventType.durationMinutes. Slots are sorted by startUtc ascending. If from or to are not provided, defaults to [now, startOfCurrentHostDay + bookingWindowDays days), and extends by one more day when today has no free slots for the selected event type. Returns 400 if from >= to or values are outside the booking window. Returns 404 if eventTypeId does not exist.")
     @get
     @route("/event-types/{id}/slots")
     @opExample(#{returnType: #[#{startUtc: utcDateTime.fromISO("2025-06-01T09:00:00Z"), endUtc: utcDateTime.fromISO("2025-06-01T09:30:00Z"), eventTypeId: "et-1"}]})
@@ -200,7 +200,7 @@ namespace Public {
       @query to?: utcDateTime
     ): Slot[] | { @statusCode status: 400 | 404, @body body: ProblemDetails };
 
-    @doc("Create a new booking for a selected slot. The server calculates endUtc = startUtc + EventType.durationMinutes. Before saving, the server checks for overlaps with existing bookings (all event types) in a transaction to prevent race conditions. startUtc must fall within valid working hours and the configured booking window. Returns 409 Conflict if the slot is already taken. Returns 400 if startUtc is invalid (outside working hours, outside booking window, in the past). Returns 404 if eventTypeId does not exist.")
+    @doc("Create a new booking for a selected slot. The server calculates endUtc = startUtc + EventType.durationMinutes. Before saving, the server checks for overlaps with existing bookings (all event types) in a transaction to prevent race conditions. startUtc must fall within valid working hours and the configured booking window (including optional one-day extension when today has no free slots for the selected event type). Returns 409 Conflict if the slot is already taken. Returns 400 if startUtc is invalid (outside working hours, outside booking window, in the past). Returns 404 if eventTypeId does not exist.")
     @post
     @route("/bookings")
     @opExample(#{parameters: #{body: #{eventTypeId: "et-1", startUtc: utcDateTime.fromISO("2025-06-01T09:00:00Z"), guestName: "Alice Johnson", guestEmail: "alice@example.com"}}, returnType: #{id: "bk-1", eventTypeId: "et-1", eventTypeName: "Consultation", startUtc: utcDateTime.fromISO("2025-06-01T09:00:00Z"), endUtc: utcDateTime.fromISO("2025-06-01T09:30:00Z"), guestName: "Alice Johnson", guestEmail: "alice@example.com", createdAtUtc: utcDateTime.fromISO("2025-05-20T08:00:00Z")}})

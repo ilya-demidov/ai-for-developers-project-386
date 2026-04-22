@@ -41,7 +41,7 @@ export function useSlots(
   return useQuery({
     queryKey: queryKeys.public.slots(id, from, to),
     queryFn: () => publicApi.getSlots(id, from, to),
-    enabled: !!id && !!to,
+    enabled: !!id,
     ...options,
   });
 }
