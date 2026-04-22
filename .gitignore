@@ -30,3 +30,10 @@ build/
 
 # Logs
 *.log
+
+# Playwright
+playwright-report/
+test-results/
+frontend/playwright-report/
+frontend/test-results/
+.playwright-mcp/

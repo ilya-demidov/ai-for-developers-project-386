@@ -9,7 +9,10 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "preview": "vite preview",
-    "generate:api": "openapi-typescript ../spec/tsp-output/openapi.yaml -o src/api/generated.ts"
+    "generate:api": "openapi-typescript ../spec/tsp-output/openapi.yaml -o src/api/generated.ts",
+    "e2e": "playwright test",
+    "e2e:real": "playwright test --project=real",
+    "e2e:mock": "playwright test --project=mock"
   },
   "dependencies": {
     "@mantine/core": "^9.0.2",
@@ -33,6 +36,7 @@
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.58.2",
     "@typescript-eslint/parser": "^8.58.2",
+    "@playwright/test": "^1.52.0",
     "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",

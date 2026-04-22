@@ -128,6 +128,9 @@ export function MonthCalendar({
             <Box
               key={index}
               className={classes.calendarDay}
+              data-testid="calendar-day"
+              data-day-key={day.dayKey}
+              data-available={(!day.isDisabled).toString()}
               data-selected={day.isSelected || undefined}
               data-disabled={day.isDisabled || undefined}
               data-current-month={day.isCurrentMonth || undefined}

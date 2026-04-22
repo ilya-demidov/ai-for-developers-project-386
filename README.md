@@ -138,6 +138,8 @@ npm run dev
 - `npm run lint` - Проверка ESLint
 - `npm run format` - Форматирование Prettier
 - `npm run generate:api` - Генерация TypeScript типов из OpenAPI
+- `npm run e2e:real` - e2e-сценарии против реального backend
+- `npm run e2e:mock` - smoke e2e-сценарии против Prism mock
 
 ### TypeSpec
 - `npm run build` (в директории `spec/`) - Компиляция TypeSpec в OpenAPI
@@ -174,6 +176,26 @@ VITE_WORK_END_HOUR=18
 
 # Booking window in days (keep in sync with backend BookingWindowOptions:Days)
 VITE_BOOKING_WINDOW_DAYS=14
+```
+
+## E2E (Playwright)
+
+Тесты находятся в `frontend/e2e` и разделены по двум режимам:
+- `real` — полные пользовательские сценарии спецификации (бронирование, конфликт слота, кросс-тип занятость, CRUD типов событий, валидация, окно записи)
+- `mock` — smoke-сценарии UI-цепочки для Prism
+
+Запуск:
+
+1. Реальный backend:
+```bash
+docker compose up --build
+cd frontend && npm run e2e:real
+```
+
+2. Prism mock:
+```bash
+VITE_API_PROXY_TARGET=http://mock:8080 docker compose --profile mock up --build
+cd frontend && npm run e2e:mock
 ```
 
 ## Лицензия

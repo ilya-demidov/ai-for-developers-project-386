@@ -57,6 +57,9 @@ export function SlotStatusList({
               return (
                 <Group
                   key={slot.startUtc}
+                  data-testid="slot-row"
+                  data-start-utc={slot.startUtc}
+                  data-status={slot.status}
                   justify="space-between"
                   px="sm"
                   py={8}
@@ -107,6 +110,7 @@ export function SlotStatusList({
           variant="default"
           size="sm"
           radius="md"
+          data-testid="slot-back-button"
           onClick={onBack}
           styles={{
             root: {
@@ -121,6 +125,7 @@ export function SlotStatusList({
           color="orange"
           size="sm"
           radius="md"
+          data-testid="slot-continue-button"
           onClick={onContinue}
           disabled={!selectedSlot}
           styles={{

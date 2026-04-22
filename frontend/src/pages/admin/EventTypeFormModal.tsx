@@ -96,6 +96,7 @@ export function EventTypeFormModal({ isOpen, onClose, eventType }: EventTypeForm
             label="Название"
             placeholder="Например, Консультация"
             required
+            data-testid="event-type-name-input"
             {...form.getInputProps('name')}
           />
 
@@ -103,6 +104,7 @@ export function EventTypeFormModal({ isOpen, onClose, eventType }: EventTypeForm
             label="Описание"
             placeholder="Описание типа события..."
             minRows={3}
+            data-testid="event-type-description-input"
             {...form.getInputProps('description')}
           />
 
@@ -112,14 +114,20 @@ export function EventTypeFormModal({ isOpen, onClose, eventType }: EventTypeForm
             required
             min={5}
             max={480}
+            data-testid="event-type-duration-input"
             {...form.getInputProps('durationMinutes')}
           />
 
           <Group justify="flex-end" mt="md">
-            <Button variant="default" onClick={onClose}>
+            <Button variant="default" onClick={onClose} data-testid="event-type-form-cancel-button">
               Отмена
             </Button>
-            <Button type="submit" color="orange" loading={isLoading}>
+            <Button
+              type="submit"
+              color="orange"
+              loading={isLoading}
+              data-testid="event-type-form-submit-button"
+            >
               {eventType ? 'Сохранить' : 'Создать'}
             </Button>
           </Group>

@@ -198,6 +198,7 @@ export function BookConfirmPage() {
                     label="Ваше имя"
                     placeholder="Иван Иванов"
                     required
+                    data-testid="booking-guest-name-input"
                     {...form.getInputProps('guestName')}
                   />
 
@@ -206,6 +207,7 @@ export function BookConfirmPage() {
                     placeholder="ivan@example.com"
                     required
                     type="email"
+                    data-testid="booking-guest-email-input"
                     {...form.getInputProps('guestEmail')}
                   />
 
@@ -213,6 +215,7 @@ export function BookConfirmPage() {
                     label="Заметки (опционально)"
                     placeholder="Дополнительная информация о встрече..."
                     minRows={3}
+                    data-testid="booking-notes-input"
                     {...form.getInputProps('notes')}
                   />
 
@@ -222,6 +225,7 @@ export function BookConfirmPage() {
                       color="orange"
                       size="lg"
                       loading={createBooking.isPending}
+                      data-testid="booking-submit-button"
                     >
                       Подтвердить запись
                     </Button>

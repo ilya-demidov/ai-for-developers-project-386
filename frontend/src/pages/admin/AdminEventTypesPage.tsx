@@ -80,7 +80,12 @@ export function AdminEventTypesPage() {
             </Text>
           </div>
 
-          <Button color="orange" leftSection={<IconPlus size={16} />} onClick={handleCreate}>
+          <Button
+            color="orange"
+            leftSection={<IconPlus size={16} />}
+            onClick={handleCreate}
+            data-testid="admin-create-event-type-button"
+          >
             Создать тип
           </Button>
         </Group>
@@ -103,7 +108,14 @@ export function AdminEventTypesPage() {
         ) : (
           <Stack gap="md">
             {eventTypes?.map((eventType) => (
-              <Card key={eventType.id} withBorder radius="lg" p="md">
+              <Card
+                key={eventType.id}
+                withBorder
+                radius="lg"
+                p="md"
+                data-testid="admin-event-type-card"
+                data-event-type-id={eventType.id}
+              >
                 <Group justify="space-between" align="flex-start">
                   <Stack gap="xs" style={{ flex: 1 }}>
                     <Group gap="xs">
@@ -121,18 +133,27 @@ export function AdminEventTypesPage() {
 
                   <Menu position="bottom-end">
                     <Menu.Target>
-                      <ActionIcon variant="subtle" color="gray">
+                      <ActionIcon
+                        variant="subtle"
+                        color="gray"
+                        data-testid="admin-event-type-menu-button"
+                      >
                         <IconDotsVertical size={18} />
                       </ActionIcon>
                     </Menu.Target>
                     <Menu.Dropdown>
-                      <Menu.Item leftSection={<IconEdit size={14} />} onClick={() => handleEdit(eventType)}>
+                      <Menu.Item
+                        leftSection={<IconEdit size={14} />}
+                        onClick={() => handleEdit(eventType)}
+                        data-testid="admin-event-type-edit"
+                      >
                         Редактировать
                       </Menu.Item>
                       <Menu.Item
                         leftSection={<IconTrash size={14} />}
                         color="red"
                         onClick={() => setDeleteConfirmId(eventType.id)}
+                        data-testid="admin-event-type-delete"
                       >
                         Удалить
                       </Menu.Item>
@@ -159,10 +180,18 @@ export function AdminEventTypesPage() {
       >
         <Text>Вы уверены, что хотите удалить этот тип события?</Text>
         <Group justify="flex-end" mt="md">
-          <Button variant="default" onClick={() => setDeleteConfirmId(null)}>
+          <Button
+            variant="default"
+            onClick={() => setDeleteConfirmId(null)}
+            data-testid="admin-delete-cancel-button"
+          >
             Отмена
           </Button>
-          <Button color="red" onClick={() => deleteConfirmId && handleDelete(deleteConfirmId)}>
+          <Button
+            color="red"
+            onClick={() => deleteConfirmId && handleDelete(deleteConfirmId)}
+            data-testid="admin-delete-confirm-button"
+          >
             Удалить
           </Button>
         </Group>

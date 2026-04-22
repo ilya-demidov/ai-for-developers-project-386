@@ -8,7 +8,13 @@ interface BookingCardProps {
 
 export function BookingCard({ booking }: BookingCardProps) {
   return (
-    <Card withBorder radius="lg" p="md">
+    <Card
+      withBorder
+      radius="lg"
+      p="md"
+      data-testid="admin-booking-card"
+      data-booking-id={booking.id}
+    >
       <Stack gap="xs">
         <Group justify="space-between">
           <Text fw={600} size="md">
