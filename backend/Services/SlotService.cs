@@ -111,9 +111,11 @@ public class SlotService
 
         if (startLocal.Date != endLocal.Date) return false;
 
-        var startOk = startLocal.Hour >= _workHours.StartHour && startLocal.Minute == 0;
-        var endOk = (endLocal.Hour < _workHours.EndHour) ||
-                    (endLocal.Hour == _workHours.EndHour && endLocal.Minute == 0);
+        var dayStartLocal = startLocal.Date.AddHours(_workHours.StartHour);
+        var dayEndLocal = startLocal.Date.AddHours(_workHours.EndHour);
+
+        var startOk = startLocal >= dayStartLocal;
+        var endOk = endLocal <= dayEndLocal;
 
         return startOk && endOk;
     }
