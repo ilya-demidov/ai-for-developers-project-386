@@ -19,7 +19,10 @@
 
 ## Технологический стек
 
-### Backend (API спецификация)
+### Backend (runtime API)
+- .NET 8 Minimal API + in-memory storage
+
+### API-контракт и mock
 - TypeSpec - описание API контракта
 - OpenAPI 3.0 - генерируется из TypeSpec
 - Prism - mock сервер для разработки
@@ -34,7 +37,6 @@
 
 ### Инфраструктура
 - Docker + Docker Compose
-- .NET 8 Minimal API + in-memory storage
 
 ## Структура проекта
 
@@ -76,6 +78,7 @@
 ### Предварительные требования
 - Docker и Docker Compose
 - Node.js 20+ (для локальной разработки без Docker)
+- .NET 8 SDK (для запуска backend через `dotnet run`)
 
 ### Запуск в Docker
 
@@ -96,7 +99,8 @@ docker compose up --build
 
 ### Запуск с Prism mock
 
-Чтобы фронтенд ходил в Prism mock вместо backend API:
+В этом режиме frontend проксирует `/api` в Prism mock.
+`api` контейнер может быть поднят через compose, но UI-запросы к API идут в mock:
 
 ```bash
 VITE_API_PROXY_TARGET=http://mock:8080 docker compose --profile mock up --build
@@ -185,7 +189,7 @@ VITE_HOST_ROLE=Host
 VITE_HOST_TIMEZONE=Europe/Moscow
 
 # Timezone for date/time display and day boundaries on frontend
-# local | host | IANA timezone | +3
+# local | host | IANA timezone | +3 | +03:00 | UTC+3 | UTC+03:00
 VITE_DISPLAY_TIMEZONE=local
 
 # Work hours (used for slot grid generation)

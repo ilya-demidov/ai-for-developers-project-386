@@ -17,6 +17,8 @@ Frontend: http://localhost:5173, API: http://localhost:8081
 VITE_API_PROXY_TARGET=http://mock:8080 docker compose --profile mock up --build
 ```
 Frontend: http://localhost:5173, Mock: http://localhost:8080
+In this mode, frontend `/api` calls are proxied to Prism mock.
+`api` container may still be started by compose, but UI API traffic goes to mock.
 
 ### Local development (without Docker)
 1. Start backend:
@@ -29,11 +31,10 @@ Frontend: http://localhost:5173, Mock: http://localhost:8080
    ```
 3. (Optional) use Prism mock instead of backend:
    ```bash
-   cd spec && npm run build
    # terminal 1:
-   cd spec && npx @stoplight/prism-cli mock ./tsp-output/openapi.yaml -p 8080
+   cd spec && npm install && npm run build && npx @stoplight/prism-cli mock ./tsp-output/openapi.yaml -p 8080
    # terminal 2:
-   cd frontend && VITE_API_PROXY_TARGET=http://localhost:8080 npm run dev
+   cd frontend && npm install && VITE_API_PROXY_TARGET=http://localhost:8080 npm run dev
    ```
 
 ## Code Generation Pipeline
@@ -93,17 +94,20 @@ Vite dev server proxies `/api` → `VITE_API_PROXY_TARGET` (defaults to `http://
 
 ## Time Handling
 
-All dates are stored and transmitted in UTC. Host timezone (Europe/Moscow by default) is used for:
+All dates are stored and transmitted in UTC.
+Host timezone (Europe/Moscow by default) is used for:
 - Converting work hours to UTC (9-18 Moscow = 06:00-15:00 UTC)
-- Displaying times in the host's local timezone on the frontend
-- Day grid generation aligned to host's local calendar days
+- Backend slot generation and booking window calculations
+
+Frontend display and calendar day boundaries use `VITE_DISPLAY_TIMEZONE`
+(`local` by default).
 
 ## Environment Variables
 
 `frontend/.env` (from `.env.example`):
 - `VITE_API_BASE_URL` — base path for API calls (default `/api`)
 - `VITE_HOST_NAME`, `VITE_HOST_ROLE`, `VITE_HOST_TIMEZONE` — host identity config
-- `VITE_DISPLAY_TIMEZONE` — display/calendar timezone (`local` | `host` | IANA timezone | `+3` / `+03:00` / `UTC+3`)
+- `VITE_DISPLAY_TIMEZONE` — display/calendar timezone (`local` | `host` | IANA timezone | `+3` / `+03:00` / `UTC+3` / `UTC+03:00`)
 - `VITE_WORK_START_HOUR`, `VITE_WORK_END_HOUR` — work hours for slot grid (integers)
 - `VITE_BOOKING_WINDOW_DAYS` — booking window in days for frontend date/range filtering (should match backend)
 
