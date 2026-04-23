@@ -22,7 +22,6 @@ import { SlotStatusList } from '../../components/SlotStatusList';
 import {
   formatSelectedDayLabel,
   generateDayGrid,
-  getUtcRangeForDisplayDate,
   mergeWithFreeSlots,
   toLocalTimeLabel,
 } from '../../lib/time';
@@ -40,6 +39,7 @@ export function BookSlotPage() {
   const { data: eventType, isLoading: isLoadingEventType } = usePublicEventType(id || '');
   const {
     data: windowFreeSlots,
+    isLoading: isLoadingWindowSlots,
     error: windowSlotsError,
   } = useSlots(id || '', undefined, undefined, {
     enabled: !!id,
@@ -57,20 +57,14 @@ export function BookSlotPage() {
     selectedDayKey && availableDayKeys.has(selectedDayKey) ? selectedDayKey : null;
   const activeSelectedSlot = activeSelectedDayKey ? selectedSlot : null;
 
-  const { from, to } = useMemo(() => {
-    if (!activeSelectedDayKey) return { from: undefined, to: undefined };
-    return getUtcRangeForDisplayDate(activeSelectedDayKey);
-  }, [activeSelectedDayKey]);
+  const dayFreeSlots = useMemo(() => {
+    if (!activeSelectedDayKey) return [];
+    return (windowFreeSlots ?? []).filter(
+      (slot) => toDisplayDayKey(slot.startUtc) === activeSelectedDayKey
+    );
+  }, [activeSelectedDayKey, windowFreeSlots]);
 
-  const {
-    data: dayFreeSlots,
-    isLoading: isLoadingSlots,
-    error: daySlotsError,
-  } = useSlots(id || '', from, to, {
-    enabled: !!id && !!activeSelectedDayKey,
-  });
-
-  const slotsError = daySlotsError ?? windowSlotsError;
+  const slotsError = windowSlotsError;
 
   const slotsWithStatus: SlotWithStatus[] = useMemo(() => {
     if (!activeSelectedDayKey || !eventType) return [];
@@ -213,7 +207,7 @@ export function BookSlotPage() {
                 onSelectSlot={handleSelectSlot}
                 onBack={handleBack}
                 onContinue={handleContinue}
-                isLoading={isLoadingSlots}
+                isLoading={isLoadingWindowSlots}
               />
             </Box>
           </Grid.Col>

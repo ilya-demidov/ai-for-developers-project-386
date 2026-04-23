@@ -131,17 +131,6 @@ export function formatSelectedDayLabel(dayKey: string): string {
   return formatDisplayDayKey(dayKey);
 }
 
-export function getUtcRangeForDisplayDate(
-  dayKey: string
-): { from: string; to: string } {
-  const dayRange = getUtcRangeForDisplayDay(dayKey);
-
-  return {
-    from: dayRange.fromUtc.format('YYYY-MM-DDTHH:mm:ss[Z]'),
-    to: dayRange.toUtc.format('YYYY-MM-DDTHH:mm:ss[Z]'),
-  };
-}
-
 export function getBookingWindowRange(
   days: number = BOOKING_WINDOW_DAYS
 ): { from: string; to: string } {
