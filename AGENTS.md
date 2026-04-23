@@ -27,6 +27,14 @@ Frontend: http://localhost:5173, Mock: http://localhost:8080
    ```bash
    cd frontend && npm install && npm run dev
    ```
+3. (Optional) use Prism mock instead of backend:
+   ```bash
+   cd spec && npm run build
+   # terminal 1:
+   cd spec && npx @stoplight/prism-cli mock ./tsp-output/openapi.yaml -p 8080
+   # terminal 2:
+   cd frontend && VITE_API_PROXY_TARGET=http://localhost:8080 npm run dev
+   ```
 
 ## Code Generation Pipeline
 
@@ -50,6 +58,8 @@ The generated file `frontend/src/api/generated.ts` is committed to the repo — 
 | `npm run format` | Prettier (single quotes, 100 print width, trailing commas es5) |
 | `npm run generate:api` | Regenerate TS types from OpenAPI spec |
 | `npm run preview` | Preview production build |
+| `npm run e2e:real` | Run Playwright scenarios against real backend |
+| `npm run e2e:mock` | Run Playwright smoke scenarios against Prism mock |
 
 ### Backend (run from `backend/`)
 | Command | Purpose |
@@ -92,10 +102,12 @@ All dates are stored and transmitted in UTC. Host timezone (Europe/Moscow by def
 
 `frontend/.env` (from `.env.example`):
 - `VITE_API_BASE_URL` — base path for API calls (default `/api`)
-- `VITE_API_PROXY_TARGET` — Vite proxy target (local dev only, default `http://localhost:8080`)
 - `VITE_HOST_NAME`, `VITE_HOST_ROLE`, `VITE_HOST_TIMEZONE` — host identity config
+- `VITE_DISPLAY_TIMEZONE` — display/calendar timezone (`local` | `host` | IANA timezone | `+3` / `+03:00` / `UTC+3`)
 - `VITE_WORK_START_HOUR`, `VITE_WORK_END_HOUR` — work hours for slot grid (integers)
 - `VITE_BOOKING_WINDOW_DAYS` — booking window in days for frontend date/range filtering (should match backend)
+
+`VITE_API_PROXY_TARGET` is not in `.env.example`; set it in shell (or Docker env) to override Vite proxy target in local development.
 
 `backend/appsettings.json`:
 - `WorkHours:StartHour`, `WorkHours:EndHour` — work hours in host timezone (default 9, 18)
@@ -108,7 +120,7 @@ All dates are stored and transmitted in UTC. Host timezone (Europe/Moscow by def
 - ESLint: flat config with react-hooks + react-refresh plugins
 - TypeScript: strict — `noUnusedLocals`, `noUnusedParameters`, `erasableSyntaxOnly`, `verbatimModuleSyntax`
 - .NET: Minimal APIs, no controllers, record types for models
-- No tests configured yet
+- Playwright e2e tests are configured in `frontend/e2e` (`real` and `mock` projects)
 
 ## Lint → Typecheck → Build
 

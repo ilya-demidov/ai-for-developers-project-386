@@ -48,6 +48,12 @@
 │       └── openapi.yaml      # OpenAPI спецификация
 ├── mock/                      # Mock сервер на Prism
 │   └── Dockerfile            # Docker образ для Prism
+├── backend/                   # .NET 8 Minimal API
+│   ├── Program.cs            # Роуты Minimal API
+│   ├── Models/               # Модели и DTO
+│   ├── Services/             # Бизнес-логика слотов/бронирований
+│   ├── Storage/              # In-memory хранилища
+│   └── appsettings.json      # Конфигурация host/work hours/window
 ├── frontend/                  # React приложение
 │   ├── src/
 │   │   ├── api/              # API клиент и хуки
@@ -102,32 +108,43 @@ VITE_API_PROXY_TARGET=http://mock:8080 docker compose --profile mock up --build
 
 ### Локальная разработка (без Docker)
 
-1. Установите зависимости TypeSpec и сгенерируйте OpenAPI:
+Основной сценарий (real backend):
+
+1. Запустите backend:
+```bash
+cd backend
+dotnet run
+```
+
+2. Запустите frontend dev сервер (в другом терминале):
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+3. Откройте http://localhost:5173
+
+Альтернативный сценарий (Prism mock вместо backend):
+
+1. Сгенерируйте OpenAPI из TypeSpec:
 ```bash
 cd spec
 npm install
 npm run build
-cd ..
 ```
 
-2. Установите зависимости frontend и сгенерируйте типы:
+2. Запустите Prism mock (в отдельном терминале):
 ```bash
-cd frontend
+npx @stoplight/prism-cli mock ./tsp-output/openapi.yaml -p 8080
+```
+
+3. Запустите frontend с прокси на mock:
+```bash
+cd ../frontend
 npm install
-npm run generate:api
+VITE_API_PROXY_TARGET=http://localhost:8080 npm run dev
 ```
-
-3. Запустите Prism mock сервер (в отдельном терминале):
-```bash
-npx @stoplight/prism-cli mock ../spec/tsp-output/openapi.yaml -p 8080
-```
-
-4. Запустите frontend dev сервер:
-```bash
-npm run dev
-```
-
-5. Откройте http://localhost:5173
 
 ## Доступные скрипты
 
@@ -150,6 +167,7 @@ npm run dev
 - `/event-types` - Выбор типа события для бронирования
 - `/book/:id` - Выбор даты и времени
 - `/book/:id/confirm` - Форма подтверждения бронирования
+- `/book/success` - Экран успешного бронирования
 - `/admin/bookings` - Список предстоящих встреч (админка)
 - `/admin/event-types` - Управление типами событий (админка)
 
@@ -177,6 +195,9 @@ VITE_WORK_END_HOUR=18
 # Booking window in days (keep in sync with backend BookingWindowOptions:Days)
 VITE_BOOKING_WINDOW_DAYS=14
 ```
+
+`VITE_API_PROXY_TARGET` не входит в `.env.example` и обычно задается в окружении запуска
+(`VITE_API_PROXY_TARGET=http://... npm run dev`) или через `docker compose`.
 
 ## E2E (Playwright)
 
