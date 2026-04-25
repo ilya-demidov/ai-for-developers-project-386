@@ -36,12 +36,14 @@
 - Zod - валидация форм
 
 ### Инфраструктура
-- Docker + Docker Compose
+- Docker + Docker Compose + Render
 
 ## Структура проекта
 
 ```
 .
+├── Dockerfile                 # Единый fullstack-образ (frontend + backend) для Render/проверки
+├── .dockerignore             # Исключения для быстрой сборки образа из корня
 ├── spec/                      # TypeSpec API спецификация
 │   ├── main.tsp              # Описание моделей и эндпоинтов
 │   ├── tspconfig.yaml        # Конфигурация компилятора
@@ -96,6 +98,22 @@ docker compose up --build
 3. Откройте приложение:
    - Frontend: http://localhost:5173
    - API: http://localhost:8081
+
+### Запуск fullstack-контейнера (как в Render)
+
+Сборка образа из корневого `Dockerfile`:
+
+```bash
+docker build -t minical-fullstack .
+```
+
+Запуск контейнера c портом из переменной окружения `PORT`:
+
+```bash
+docker run --rm -e PORT=10000 -p 10000:10000 minical-fullstack
+```
+
+После запуска приложение доступно на `http://localhost:10000`, API — по `http://localhost:10000/api`.
 
 ### Запуск с Prism mock
 
@@ -222,6 +240,24 @@ cd frontend && npm run e2e:real
 VITE_API_PROXY_TARGET=http://mock:8080 docker compose --profile mock up --build
 cd frontend && npm run e2e:mock
 ```
+
+## Deploy на Render (single service)
+
+Используется один Web Service и корневой `Dockerfile`.
+
+1. Откройте Render Dashboard → `New` → `Web Service`.
+2. Подключите репозиторий `ai-for-developers-project-386`.
+3. Выберите ветку для деплоя.
+4. Runtime: `Docker`.
+5. Root Directory: `/` (корень репозитория).
+6. Dockerfile Path: `./Dockerfile`.
+7. Переменные окружения:
+   - `PORT` задается Render автоматически.
+   - `CORS_ALLOWED_ORIGINS` опционально (например, `https://your-app.onrender.com`).
+8. Создайте сервис и дождитесь статуса `Live`.
+
+Публичная ссылка приложения:
+- `https://minical-fullstack.onrender.com`
 
 ## Лицензия
 

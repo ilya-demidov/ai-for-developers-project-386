@@ -6,6 +6,7 @@ using MiniCal.Api.Services;
 using MiniCal.Api.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
+var corsOrigins = ResolveCorsOrigins(builder.Configuration);
 
 builder.Services.Configure<WorkHoursOptions>(builder.Configuration.GetSection("WorkHours"));
 builder.Services.Configure<MiniCalHostOptions>(builder.Configuration.GetSection("Host"));
@@ -20,7 +21,7 @@ builder.Services.AddSingleton<BookingService>();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins(corsOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod());
 });
@@ -35,6 +36,14 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =
 var app = builder.Build();
 
 app.UseCors();
+var indexHtmlPath = Path.Combine(app.Environment.WebRootPath ?? "wwwroot", "index.html");
+var hasSpaAssets = File.Exists(indexHtmlPath);
+
+if (hasSpaAssets)
+{
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
+}
 
 SeedData(app);
 
@@ -151,6 +160,21 @@ pub.MapPost("/bookings", (BookingCreateDto dto, BookingService bookingService) =
     }
 });
 
+if (hasSpaAssets)
+{
+    app.MapFallback(async context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api"))
+        {
+            context.Response.StatusCode = 404;
+            return;
+        }
+
+        context.Response.ContentType = "text/html; charset=utf-8";
+        await context.Response.SendFileAsync(indexHtmlPath);
+    });
+}
+
 app.Run();
 
 // ── Helpers ────────────────────────────────────────────────
@@ -175,6 +199,20 @@ static IResult ProblemValidation(Dictionary<string, string[]> errors) =>
     Results.ValidationProblem(errors, detail: "One or more validation errors occurred.");
 
 static string GenerateId(string prefix) => $"{prefix}-{Guid.NewGuid().ToString("N")[..8]}";
+
+static string[] ResolveCorsOrigins(IConfiguration configuration)
+{
+    var configuredOrigins = Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS")
+        ?? configuration["Cors:AllowedOrigins"];
+
+    if (string.IsNullOrWhiteSpace(configuredOrigins))
+    {
+        return ["http://localhost:5173"];
+    }
+
+    return configuredOrigins
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+}
 
 static void SeedData(WebApplication app)
 {
