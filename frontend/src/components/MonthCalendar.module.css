@@ -5,37 +5,37 @@
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--mantine-color-default-border);
   cursor: pointer;
   transition: all 0.15s ease;
   padding: 4px;
 
   &:hover:not([data-disabled]):not([data-selected]) {
-    background-color: #f8f9fa;
-    border-color: #dee2e6;
+    background-color: var(--mantine-color-default-hover);
+    border-color: var(--mantine-color-default-border);
   }
 
   &[data-selected] {
-    background-color: #fd7e14;
-    border-color: #fd7e14;
+    background-color: var(--mantine-primary-color-filled);
+    border-color: var(--mantine-primary-color-filled);
 
     &:hover {
-      background-color: #e96b0a;
-      border-color: #e96b0a;
+      background-color: var(--mantine-primary-color-filled-hover);
+      border-color: var(--mantine-primary-color-filled-hover);
     }
   }
 
   &[data-disabled] {
     cursor: not-allowed;
     background-color: transparent;
-    border-color: #f1f3f5;
+    border-color: var(--mantine-color-disabled-border);
 
     & * {
-      color: #dee2e6 !important;
+      color: var(--mantine-color-disabled-color) !important;
     }
   }
 
   &:not([data-current-month]) {
-    border-color: #f1f3f5;
+    border-color: var(--mantine-color-disabled-border);
   }
 }

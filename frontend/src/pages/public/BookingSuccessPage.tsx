@@ -72,14 +72,14 @@ export function BookingSuccessPage() {
         >
           <Stack gap="sm">
             <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
-              <Paper p="sm" radius="md" bg="gray.0">
+              <Paper p="sm" radius="md" bg="var(--mantine-color-default)">
                 <Text size="sm" c="dimmed" mb={2}>
                   Что
                 </Text>
                 <Text fw={600}>{booking.eventTypeName}</Text>
               </Paper>
 
-              <Paper p="sm" radius="md" bg="gray.0">
+              <Paper p="sm" radius="md" bg="var(--mantine-color-default)">
                 <Text size="sm" c="dimmed" mb={2}>
                   Когда
                 </Text>
@@ -87,7 +87,12 @@ export function BookingSuccessPage() {
                 <Text>{formatSlotRange(booking.startUtc, booking.endUtc)}</Text>
               </Paper>
 
-              <Paper p="sm" radius="md" bg="gray.0" style={{ gridColumn: '1 / -1' }}>
+              <Paper
+                p="sm"
+                radius="md"
+                bg="var(--mantine-color-default)"
+                style={{ gridColumn: '1 / -1' }}
+              >
                 <Text size="sm" c="dimmed" mb={2}>
                   Кто
                 </Text>
@@ -97,7 +102,7 @@ export function BookingSuccessPage() {
             </SimpleGrid>
 
             {booking.notes && (
-              <Paper p="sm" radius="md" bg="gray.0">
+              <Paper p="sm" radius="md" bg="var(--mantine-color-default)">
                 <Text size="sm" c="dimmed" mb={2}>
                   Дополнительные заметки
                 </Text>

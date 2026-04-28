@@ -1,13 +1,29 @@
-import { Container, Grid, Title, Text, Button, Card, Stack, Badge, Group } from '@mantine/core';
+import {
+  Container,
+  Grid,
+  Title,
+  Text,
+  Button,
+  Card,
+  Stack,
+  Badge,
+  Group,
+  useComputedColorScheme,
+} from '@mantine/core';
 import { IconArrowRight, IconCalendarEvent, IconClock, IconSettings } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 
 export function HomePage() {
+  const colorScheme = useComputedColorScheme('light');
+
   return (
     <div
       style={{
         minHeight: 'calc(100dvh - 62px)',
-        background: 'linear-gradient(135deg, #dbeafe 0%, #fff7ed 100%)',
+        background:
+          colorScheme === 'dark'
+            ? 'linear-gradient(135deg, var(--mantine-color-dark-8) 0%, var(--mantine-color-dark-7) 100%)'
+            : 'linear-gradient(135deg, var(--mantine-color-blue-0) 0%, var(--mantine-color-orange-0) 100%)',
         padding: '60px 0',
       }}
     >

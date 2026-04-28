@@ -163,7 +163,7 @@ export function BookConfirmPage() {
                 </div>
 
                 <Stack gap="xs">
-                  <Paper p="sm" radius="md" bg="gray.0">
+                  <Paper p="sm" radius="md" bg="var(--mantine-color-default)">
                     <Text size="xs" c="dimmed" mb={2}>
                       Дата
                     </Text>
@@ -172,7 +172,7 @@ export function BookConfirmPage() {
                     </Text>
                   </Paper>
 
-                  <Paper p="sm" radius="md" bg="gray.0">
+                  <Paper p="sm" radius="md" bg="var(--mantine-color-default)">
                     <Text size="xs" c="dimmed" mb={2}>
                       Время
                     </Text>

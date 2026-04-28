@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
+import { MantineProvider, localStorageColorSchemeManager } from '@mantine/core';
 import { DatesProvider } from '@mantine/dates';
 import { Notifications } from '@mantine/notifications';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -36,10 +36,18 @@ const queryClient = new QueryClient({
   },
 });
 
+const colorSchemeManager = localStorageColorSchemeManager({
+  key: 'mini-cal-color-scheme',
+});
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <MantineProvider theme={theme}>
+      <MantineProvider
+        theme={theme}
+        colorSchemeManager={colorSchemeManager}
+        defaultColorScheme="auto"
+      >
         <DatesProvider settings={{ locale: 'ru', firstDayOfWeek: 1 }}>
           <Notifications position="top-right" />
           <RouterProvider router={router} />

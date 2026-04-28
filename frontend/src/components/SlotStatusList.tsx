@@ -26,7 +26,7 @@ export function SlotStatusList({
       p="lg"
       styles={{
         root: {
-          borderColor: '#e9ecef',
+          borderColor: 'var(--mantine-color-default-border)',
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
@@ -67,20 +67,24 @@ export function SlotStatusList({
                     root: {
                       borderRadius: '6px',
                       backgroundColor: isSelected
-                        ? '#fff5e6'
+                        ? 'var(--mantine-primary-color-light)'
                         : isFree
-                          ? 'white'
-                          : '#f8f9fa',
+                          ? 'transparent'
+                          : 'var(--mantine-color-default)',
                       cursor: isFree ? 'pointer' : 'not-allowed',
                       border: `1px solid ${
-                        isSelected ? '#fd7e14' : isFree ? '#e9ecef' : '#f1f3f5'
+                        isSelected
+                          ? 'var(--mantine-primary-color-filled)'
+                          : 'var(--mantine-color-default-border)'
                       }`,
                       opacity: isFree ? 1 : 0.7,
                       transition: 'all 0.15s ease',
                       '&:hover': isFree
                         ? {
-                            backgroundColor: isSelected ? '#fff5e6' : '#f8f9fa',
-                            borderColor: '#fd7e14',
+                            backgroundColor: isSelected
+                              ? 'var(--mantine-primary-color-light)'
+                              : 'var(--mantine-color-default-hover)',
+                            borderColor: 'var(--mantine-primary-color-filled)',
                           }
                         : undefined,
                     },
@@ -90,7 +94,7 @@ export function SlotStatusList({
                   <Text
                     size="sm"
                     fw={isSelected ? 500 : 400}
-                    c={isFree ? 'dark' : 'dimmed'}
+                    c={isFree ? 'var(--mantine-color-text)' : 'dimmed'}
                     style={{ fontFamily: 'monospace' }}
                   >
                     {formatSlotRange(slot.startUtc, slot.endUtc)}
@@ -114,7 +118,7 @@ export function SlotStatusList({
           onClick={onBack}
           styles={{
             root: {
-              borderColor: '#e9ecef',
+              borderColor: 'var(--mantine-color-default-border)',
               fontWeight: 500,
             },
           }}
@@ -130,7 +134,6 @@ export function SlotStatusList({
           disabled={!selectedSlot}
           styles={{
             root: {
-              backgroundColor: selectedSlot ? '#fd7e14' : '#e9ecef',
               fontWeight: 500,
             },
           }}

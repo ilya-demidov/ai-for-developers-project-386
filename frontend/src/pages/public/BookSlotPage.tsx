@@ -132,7 +132,7 @@ export function BookSlotPage() {
               p="lg"
               h={{ base: 'auto', md: CALENDAR_HEIGHT }}
               style={{
-                borderColor: '#e9ecef',
+                borderColor: 'var(--mantine-color-default-border)',
               }}
             >
               <Stack gap="lg">
@@ -158,7 +158,7 @@ export function BookSlotPage() {
                   <Paper
                     p="sm"
                     radius="sm"
-                    styles={{ root: { backgroundColor: '#f1f3f5' } }}
+                    styles={{ root: { backgroundColor: 'var(--mantine-color-default)' } }}
                   >
                     <Text size="xs" c="dimmed" mb={4}>
                       Выбранная дата
@@ -173,7 +173,7 @@ export function BookSlotPage() {
                   <Paper
                     p="sm"
                     radius="sm"
-                    styles={{ root: { backgroundColor: '#f1f3f5' } }}
+                    styles={{ root: { backgroundColor: 'var(--mantine-color-default)' } }}
                   >
                     <Text size="xs" c="dimmed" mb={4}>
                       Выбранное время

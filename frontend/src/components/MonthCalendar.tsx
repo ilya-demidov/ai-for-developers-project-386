@@ -78,7 +78,7 @@ export function MonthCalendar({
       radius="md"
       p="lg"
       style={{
-        borderColor: '#e9ecef',
+        borderColor: 'var(--mantine-color-default-border)',
         height: '100%',
         width: '100%',
         display: 'flex',
@@ -146,7 +146,7 @@ export function MonthCalendar({
                     ? 'white'
                     : day.isDisabled || !day.isCurrentMonth
                       ? 'gray.4'
-                      : 'dark'
+                      : 'var(--mantine-color-text)'
                 }
               >
                 {day.date.format('D')}
